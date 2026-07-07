@@ -1,5 +1,50 @@
 [
   {
+    "id": "ha79oe",
+    "timestamp": "2026-07-07T15:58:03.653Z",
+    "location": "gate C",
+    "description": "wheelchair not available",
+    "status": "resolved",
+    "aiActionPlan": "Immediately dispatch a mobility assistant with a wheelchair to Gate C from the nearest available depot. Confirm delivery with the reporting party and ensure the fan's needs are met. Report resolution to central operations.",
+    "source": "fan_app"
+  },
+  {
+    "id": "qaisad",
+    "timestamp": "2026-07-07T15:51:49.967Z",
+    "location": "Seat A-103",
+    "description": "My wallet is stolen",
+    "status": "resolved",
+    "aiActionPlan": "Immediately verify the fan's location at Seat A-103 and ensure their safety. Gather all available details about the wallet and the theft incident, then promptly contact stadium security and local police to file an official report. Advise the fan on next steps and how to check lost-and-found.",
+    "source": "fan_app"
+  },
+  {
+    "id": "omc31j",
+    "timestamp": "2026-07-07T15:51:48.783Z",
+    "location": "Seat A-103",
+    "description": "My wallet is stolen",
+    "status": "resolved",
+    "aiActionPlan": "Staff should immediately proceed to Seat A-103, confirm details with the fan, and ensure their immediate safety and comfort. Notify stadium security and the police liaison immediately to initiate an investigation and review CCTV footage. Guide the individual to the nearest fan services desk for official reporting and further assistance.",
+    "source": "fan_app"
+  },
+  {
+    "id": "ywo0a",
+    "timestamp": "2026-07-07T15:50:44.206Z",
+    "location": "Gate B",
+    "description": "Stampede",
+    "status": "resolved",
+    "aiActionPlan": "**Gate B - Stampede Action Plan:**\n\nImmediately deploy all available staff to Gate B to halt the flow of people, create immediate space to alleviate pressure, and assist fallen individuals. Simultaneously, report the exact severity and status to Central Command for urgent medical and security deployment.",
+    "source": "fan_app"
+  },
+  {
+    "id": "2rrezo",
+    "timestamp": "2026-07-07T15:49:07.166Z",
+    "location": "Section 104",
+    "description": "Need medical help",
+    "status": "resolved",
+    "aiActionPlan": "Immediately dispatch the nearest medical team to Section 104. Simultaneously, alert stadium staff in Section 104 to assess the scene, provide initial support if trained, and clear a path for responders. Ensure the incident is logged in the operations system.",
+    "source": "fan_app"
+  },
+  {
     "id": "ptuku7",
     "timestamp": "2026-07-07T15:27:40.817Z",
     "location": "gate A",
