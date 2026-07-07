@@ -31,8 +31,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ matches: JSON.parse(responseText) });
   } catch (error) {
-    console.error("Matcher error:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error("Matcher error (fallback):", error);
+    return NextResponse.json({ matches: [] });
   }
 }
