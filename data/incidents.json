@@ -1,0 +1,11 @@
+[
+  {
+    "id": "ptuku7",
+    "timestamp": "2026-07-07T15:27:40.817Z",
+    "location": "gate A",
+    "description": "Spilled soda",
+    "status": "resolved",
+    "aiActionPlan": "No AI action plan generated.",
+    "source": "fan_app"
+  }
+]
