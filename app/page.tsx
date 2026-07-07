@@ -249,17 +249,72 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-8 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-slate-300">Gate Wait Times (Mins)</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <XAxis dataKey="name" stroke="#475569" />
-                    <YAxis stroke="#475569" />
-                    <Tooltip cursor={{fill: '#1e293b'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '8px'}} />
-                    <Bar dataKey="wait" fill="#10b981" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+              {/* Left Side: Chart */}
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col">
+                <h3 className="text-lg font-semibold mb-4 text-slate-300">Gate Wait Times (Mins)</h3>
+                <div className="flex-1 min-h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <XAxis dataKey="name" stroke="#475569" />
+                      <YAxis stroke="#475569" />
+                      <Tooltip cursor={{fill: '#1e293b'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '8px'}} />
+                      <Bar dataKey="wait" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Right Side: Staffing */}
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2"><Users className="text-emerald-400"/> AI Staff Deployment</h3>
+                    <p className="text-slate-400 text-sm">Dynamic reallocation strategies.</p>
+                  </div>
+                  <button onClick={generateStaffing} disabled={isGeneratingStaff} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 text-sm">
+                    {isGeneratingStaff ? 'Analyzing...' : 'Generate Plan'} <Users size={16} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
+                     <div className="text-2xl font-bold text-slate-200">120</div>
+                     <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">Total Stewards</div>
+                   </div>
+                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
+                     <div className="text-2xl font-bold text-slate-200">45</div>
+                     <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">Security</div>
+                   </div>
+                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
+                     <div className="text-2xl font-bold text-slate-200">18</div>
+                     <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">Medical</div>
+                   </div>
+                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
+                     <div className="text-2xl font-bold text-emerald-400">96%</div>
+                     <div className="text-emerald-400/80 text-xs font-bold uppercase tracking-wider mt-1">Active Duty</div>
+                   </div>
+                </div>
+
+                {staffSuggestions.length > 0 && (
+                  <div className="space-y-3 mt-auto">
+                    <h4 className="text-sm font-bold text-slate-300 mb-2 uppercase tracking-wider">AI Reallocation Plan</h4>
+                    {staffSuggestions.map((s, i) => (
+                      <div key={i} className="bg-slate-950 border border-emerald-500/30 p-4 rounded-xl flex gap-4 items-center">
+                        <div className="bg-emerald-500/10 p-3 rounded-lg text-emerald-400 shadow">
+                          <Users size={20} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-bold text-emerald-400 mb-1">{s.action}</div>
+                          <p className="text-slate-300 text-xs leading-relaxed">{s.detail}</p>
+                        </div>
+                        <button className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-3 py-2 rounded-lg font-bold transition-colors text-xs">
+                          Dispatch
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -306,56 +361,7 @@ export default function Dashboard() {
                 ))
               )}
             </div>
-            <div className="mt-12 bg-slate-900 border border-slate-800 p-8 rounded-2xl">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2"><Users className="text-emerald-400"/> Dynamic Staff Deployment</h3>
-                  <p className="text-slate-400">Generate intelligent reallocation strategies based on live incidents and predictive bottlenecks.</p>
-                </div>
-                <button onClick={generateStaffing} disabled={isGeneratingStaff} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50">
-                  {isGeneratingStaff ? 'Analyzing Live Data...' : 'Generate AI Suggestions'} <Users size={18} />
-                </button>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                 <div className="bg-slate-950 border border-slate-800 p-6 rounded-2xl text-center shadow-inner">
-                   <div className="text-4xl font-bold text-slate-200">120</div>
-                   <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mt-1">Total Stewards</div>
-                 </div>
-                 <div className="bg-slate-950 border border-slate-800 p-6 rounded-2xl text-center shadow-inner">
-                   <div className="text-4xl font-bold text-slate-200">45</div>
-                   <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mt-1">Security</div>
-                 </div>
-                 <div className="bg-slate-950 border border-slate-800 p-6 rounded-2xl text-center shadow-inner">
-                   <div className="text-4xl font-bold text-slate-200">18</div>
-                   <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mt-1">Medical</div>
-                 </div>
-                 <div className="bg-slate-950 border border-slate-800 p-6 rounded-2xl text-center shadow-inner">
-                   <div className="text-4xl font-bold text-emerald-400">96%</div>
-                   <div className="text-emerald-400/80 text-sm font-bold uppercase tracking-wider mt-1">Active Duty</div>
-                 </div>
-              </div>
-
-              {staffSuggestions.length > 0 && (
-                <div className="space-y-4">
-                  <h4 className="text-lg font-bold text-slate-300 mb-4">AI Reallocation Plan</h4>
-                  {staffSuggestions.map((s, i) => (
-                    <div key={i} className="bg-slate-950 border border-emerald-500/30 p-6 rounded-2xl flex gap-6 items-center">
-                      <div className="bg-emerald-500/10 p-4 rounded-xl text-emerald-400 shadow">
-                        <Users size={28} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-lg font-bold text-emerald-400 mb-1">{s.action}</div>
-                        <p className="text-slate-300">{s.detail}</p>
-                      </div>
-                      <button className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-6 py-3 rounded-lg font-bold transition-colors">
-                        Dispatch Order
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
           </div>
         )}
