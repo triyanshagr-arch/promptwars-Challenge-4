@@ -371,6 +371,7 @@ export default function FanApp() {
                   </select>
                   
                   <button 
+                    aria-label="Swap Languages"
                     onClick={() => {
                       const temp = sourceLang;
                       setSourceLang(targetLang);
@@ -417,6 +418,7 @@ export default function FanApp() {
                         <div className="flex justify-between items-center mb-1 gap-4">
                            <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{log.tgtLang}</div>
                            <button 
+                             aria-label="Speak Translation"
                              onClick={() => {
                                if ('speechSynthesis' in window) {
                                  window.speechSynthesis.cancel();
@@ -486,7 +488,7 @@ export default function FanApp() {
                       let translatedText = `[${targetLang}] ${inputText}`;
                       
                       if (data && data[0]) {
-                        translatedText = data[0].map((item: any) => item[0]).join('');
+                        translatedText = data[0].map((item: unknown) => (item as string[])[0]).join('');
                       }
 
                       setTranslationLog(prev => [...prev, { 
@@ -518,6 +520,7 @@ export default function FanApp() {
                   
                   <button 
                     type="button"
+                    aria-label="Voice Translate Mock"
                     onPointerDown={() => setIsListening(true)}
                     onPointerUp={async () => {
                       setIsListening(false);
@@ -544,7 +547,7 @@ export default function FanApp() {
                         let translatedText = `[${targetLang}] ${inputText}`;
                         
                         if (data && data[0]) {
-                          translatedText = data[0].map((item: any) => item[0]).join('');
+                          translatedText = data[0].map((item: unknown) => (item as string[])[0]).join('');
                         }
 
                         setTranslationLog(prev => [...prev, { 
@@ -1061,6 +1064,7 @@ export default function FanApp() {
         {/* Bottom Navigation */}
         <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-2 py-4 pb-8 flex justify-around items-center z-20">
           <button 
+            aria-label="Navigate to Home"
             onClick={() => setActiveTab('home')}
             className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'home' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
@@ -1069,6 +1073,7 @@ export default function FanApp() {
           </button>
           
           <button 
+            aria-label="Navigate to Matches"
             onClick={() => setActiveTab('matches')}
             className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'matches' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
@@ -1077,6 +1082,7 @@ export default function FanApp() {
           </button>
 
           <button 
+            aria-label="Navigate to Stadiums"
             onClick={() => setActiveTab('stadiums')}
             className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'stadiums' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
@@ -1085,6 +1091,7 @@ export default function FanApp() {
           </button>
 
           <button 
+            aria-label="Navigate to Translate"
             onClick={() => setActiveTab('translate')}
             className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'translate' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
@@ -1093,6 +1100,7 @@ export default function FanApp() {
           </button>
 
           <button 
+            aria-label="Navigate to Concierge"
             onClick={() => setActiveTab('assistant')}
             className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'assistant' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
@@ -1101,6 +1109,7 @@ export default function FanApp() {
           </button>
 
           <button 
+            aria-label="Navigate to Explore"
             onClick={() => setActiveTab('explore')}
             className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'explore' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
