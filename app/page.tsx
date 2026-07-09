@@ -19,8 +19,12 @@ export default function FanApp() {
   const [incidentLocation, setIncidentLocation] = useState('Seat (Sec 112)');
   const [lostLocation, setLostLocation] = useState('Seat (Sec 112)');
   const [isListening, setIsListening] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [sourceLang, setSourceLang] = useState('English');
   const [targetLang, setTargetLang] = useState('Spanish');
+  const [translationLog, setTranslationLog] = useState([
+    { source: "Where is the nearest entrance to sector 112?", target: "¿Dónde está la entrada más cercana al sector 112?", srcLang: "English", tgtLang: "Spanish" }
+  ]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Dynamic wait times based on selected stadium
@@ -381,50 +385,74 @@ export default function FanApp() {
                 </div>
               </div>
 
-              {/* Translation Log area */}
-              <div className="flex-1 overflow-y-auto px-6 pb-32 space-y-4">
-                
-                <div className="flex flex-col gap-1">
-                  <div className="bg-slate-800/50 p-4 rounded-2xl rounded-tl-sm border border-slate-700/50">
-                    <div className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">{sourceLang}</div>
-                    <p className="text-slate-200">Where is the nearest entrance to sector 112?</p>
-                  </div>
-                </div>
+                {/* Translation Log area */}
+                <div className="flex-1 overflow-y-auto px-6 pb-32 space-y-4">
+                  
+                  {translationLog.map((log, index) => (
+                    <div key={index} className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div className="flex flex-col gap-1 mt-4">
+                        <div className="bg-slate-800/50 p-4 rounded-2xl rounded-tl-sm border border-slate-700/50">
+                          <div className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">{log.srcLang}</div>
+                          <p className="text-slate-200">{log.source}</p>
+                        </div>
+                      </div>
 
-                <div className="flex flex-col gap-1 items-end">
-                  <div className="bg-emerald-900/20 p-4 rounded-2xl rounded-tr-sm border border-emerald-500/20">
-                    <div className="flex justify-between items-center mb-1 gap-4">
-                       <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{targetLang}</div>
-                       <Volume2 size={12} className="text-emerald-500 cursor-pointer" />
+                      <div className="flex flex-col gap-1 items-end">
+                        <div className="bg-emerald-900/20 p-4 rounded-2xl rounded-tr-sm border border-emerald-500/20">
+                          <div className="flex justify-between items-center mb-1 gap-4">
+                             <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{log.tgtLang}</div>
+                             <Volume2 size={12} className="text-emerald-500 cursor-pointer" />
+                          </div>
+                          <p className="text-emerald-50 text-right">{log.target}</p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-emerald-50 text-right">¿Dónde está la entrada más cercana al sector 112?</p>
-                  </div>
+                  ))}
+
+                  {isListening && (
+                    <div className="flex flex-col gap-1 items-center justify-center py-8">
+                       <div className="flex gap-1 mb-2">
+                         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                       </div>
+                       <p className="text-xs font-mono text-emerald-400 animate-pulse">Listening...</p>
+                    </div>
+                  )}
+
+                  {isTranslating && (
+                    <div className="flex flex-col gap-1 items-center justify-center py-8">
+                       <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-2"></div>
+                       <p className="text-xs font-mono text-emerald-400 animate-pulse">Translating...</p>
+                    </div>
+                  )}
+                  
                 </div>
 
-                {isListening && (
-                  <div className="flex flex-col gap-1 items-center justify-center py-8">
-                     <div className="flex gap-1 mb-2">
-                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                     </div>
-                     <p className="text-xs font-mono text-emerald-400 animate-pulse">Listening...</p>
-                  </div>
-                )}
-                
-              </div>
-
-              {/* Mic Button Fixed at Bottom (above nav) */}
-              <div className="absolute bottom-6 left-0 right-0 flex justify-center z-10 pointer-events-none">
-                 <button 
-                   onPointerDown={() => setIsListening(true)}
-                   onPointerUp={() => setIsListening(false)}
-                   onPointerLeave={() => setIsListening(false)}
-                   className={`pointer-events-auto w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border-4 ${isListening ? 'bg-emerald-500 border-emerald-400/50 scale-110 shadow-[0_0_40px_rgba(16,185,129,0.5)]' : 'bg-slate-900 border-slate-800 hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]'}`}
-                 >
-                   <Mic size={32} className={isListening ? 'text-slate-950 animate-pulse' : 'text-emerald-400'} />
-                 </button>
-              </div>
+                {/* Mic Button Fixed at Bottom (above nav) */}
+                <div className="absolute bottom-6 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                   <button 
+                     onPointerDown={() => setIsListening(true)}
+                     onPointerUp={() => {
+                       setIsListening(false);
+                       setIsTranslating(true);
+                       setTimeout(() => {
+                         const mocks = [
+                           { source: "Can I get two hot dogs and a large beer please?", target: "¿Me da dos perritos calientes y una cerveza grande por favor?" },
+                           { source: "Where is the merchandise stand?", target: "¿Dónde está el puesto de merchandising?" },
+                           { source: "What a spectacular goal that was!", target: "¡Qué gol espectacular fue ese!" }
+                         ];
+                         const nextMock = mocks[translationLog.length % mocks.length];
+                         setTranslationLog(prev => [...prev, { ...nextMock, srcLang: sourceLang, tgtLang: targetLang }]);
+                         setIsTranslating(false);
+                       }, 1200);
+                     }}
+                     onPointerLeave={() => setIsListening(false)}
+                     className={`pointer-events-auto w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border-4 ${isListening ? 'bg-emerald-500 border-emerald-400/50 scale-110 shadow-[0_0_40px_rgba(16,185,129,0.5)]' : 'bg-slate-900 border-slate-800 hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]'}`}
+                   >
+                     <Mic size={32} className={isListening ? 'text-slate-950 animate-pulse' : 'text-emerald-400'} />
+                   </button>
+                </div>
 
             </div>
           )}
