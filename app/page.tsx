@@ -465,24 +465,42 @@ export default function FanApp() {
               {/* Translate Input Bar */}
               <div className="p-4 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-md pb-24 shrink-0">
                 <form 
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
                     if (!translateInput.trim()) return;
                     setIsTranslating(true);
+                    const inputText = translateInput;
+                    setTranslateInput('');
                     
-                    const mockTranslatedText = `[${targetLang}] ${translateInput}`;
+                    try {
+                      const langMap: Record<string, string> = {
+                        'English': 'en', 'Español': 'es', 'Français': 'fr',
+                        'Português': 'pt', 'Deutsch': 'de', 'العربية': 'ar',
+                        '日本語': 'ja', '한국어': 'ko', '中文': 'zh', 'हिन्दी': 'hi'
+                      };
+                      const src = langMap[sourceLang] || 'en';
+                      const tgt = langMap[targetLang] || 'es';
+                      
+                      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(inputText)}&langpair=${src}|${tgt}`);
+                      const data = await res.json();
+                      const translatedText = data.responseData.translatedText || `[${targetLang}] ${inputText}`;
 
-                    setTimeout(() => {
                       setTranslationLog(prev => [...prev, { 
-                        source: translateInput, 
-                        target: mockTranslatedText, 
+                        source: inputText, 
+                        target: translatedText, 
                         srcLang: sourceLang, 
                         tgtLang: targetLang 
                       }]);
+                    } catch (err) {
+                      setTranslationLog(prev => [...prev, { 
+                        source: inputText, 
+                        target: `[${targetLang}] ${inputText}`, 
+                        srcLang: sourceLang, 
+                        tgtLang: targetLang 
+                      }]);
+                    } finally {
                       setIsTranslating(false);
-                    }, 800);
-                    
-                    setTranslateInput('');
+                    }
                   }}
                   className="flex gap-2 relative items-center"
                 >
@@ -497,19 +515,46 @@ export default function FanApp() {
                   <button 
                     type="button"
                     onPointerDown={() => setIsListening(true)}
-                    onPointerUp={() => {
+                    onPointerUp={async () => {
                       setIsListening(false);
                       setIsTranslating(true);
-                      setTimeout(() => {
-                        const mocks = [
-                          { source: "Can I get two hot dogs and a large beer please?", target: "¿Me da dos perritos calientes y una cerveza grande por favor?" },
-                          { source: "Where is the merchandise stand?", target: "¿Dónde está el puesto de merchandising?" },
-                          { source: "What a spectacular goal that was!", target: "¡Qué gol espectacular fue ese!" }
-                        ];
-                        const nextMock = mocks[translationLog.length % mocks.length];
-                        setTranslationLog(prev => [...prev, { ...nextMock, srcLang: sourceLang, tgtLang: targetLang }]);
+                      
+                      const mocks = [
+                        "Can I get two hot dogs and a large beer please?",
+                        "Where is the merchandise stand?",
+                        "What a spectacular goal that was!"
+                      ];
+                      const inputText = mocks[translationLog.length % mocks.length];
+
+                      try {
+                        const langMap: Record<string, string> = {
+                          'English': 'en', 'Español': 'es', 'Français': 'fr',
+                          'Português': 'pt', 'Deutsch': 'de', 'العربية': 'ar',
+                          '日本語': 'ja', '한국어': 'ko', '中文': 'zh', 'हिन्दी': 'hi'
+                        };
+                        const src = 'en'; // mocks are in english
+                        const tgt = langMap[targetLang] || 'es';
+                        
+                        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(inputText)}&langpair=${src}|${tgt}`);
+                        const data = await res.json();
+                        const translatedText = data.responseData.translatedText || `[${targetLang}] ${inputText}`;
+
+                        setTranslationLog(prev => [...prev, { 
+                          source: inputText, 
+                          target: translatedText, 
+                          srcLang: 'English', 
+                          tgtLang: targetLang 
+                        }]);
+                      } catch (err) {
+                        setTranslationLog(prev => [...prev, { 
+                          source: inputText, 
+                          target: `[${targetLang}] ${inputText}`, 
+                          srcLang: 'English', 
+                          tgtLang: targetLang 
+                        }]);
+                      } finally {
                         setIsTranslating(false);
-                      }, 1200);
+                      }
                     }}
                     onPointerLeave={() => setIsListening(false)}
                     className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 ${isListening ? 'bg-emerald-500 text-slate-950 animate-pulse' : 'bg-slate-800 text-emerald-400 hover:bg-slate-700'}`}
