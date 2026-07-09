@@ -417,7 +417,10 @@ export default function FanApp() {
                         <span className="w-1 h-1 rounded-full bg-slate-700"></span>
                         <span>{stadium.region}</span>
                       </div>
-                      <button className="flex items-center gap-1 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors">
+                      <button 
+                        onClick={() => setActiveTab('explore')}
+                        className="flex items-center gap-1 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors"
+                      >
                         <MapPin size={12} /> Seating Plan
                       </button>
                     </div>
