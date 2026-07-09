@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket } from 'lucide-react';
 
 export default function FanApp() {
@@ -13,7 +13,19 @@ export default function FanApp() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showARMap, setShowARMap] = useState(false);
+  const [selectedStadium, setSelectedStadium] = useState('MetLife Stadium');
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic wait times based on selected stadium
+  const liveWaitTimes = useMemo(() => {
+    const seed = selectedStadium.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return {
+      food: (seed * 3) % 15 + 2,
+      merch: (seed * 7) % 25 + 5,
+      restroom: (seed * 5) % 8 + 1,
+      entrance: (seed * 11) % 35 + 10,
+    };
+  }, [selectedStadium]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -323,7 +335,7 @@ export default function FanApp() {
             <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Map className="text-emerald-400" size={20} />
-                Live Explore
+                Explore {selectedStadium}
               </h2>
               
               <div 
@@ -350,22 +362,22 @@ export default function FanApp() {
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
                     <div className="text-slate-400 mb-2"><Coffee size={20} /></div>
                     <div className="font-bold text-sm mb-1 text-white">Concourse B Food</div>
-                    <div className="text-2xl font-black text-emerald-400">4 min</div>
+                    <div className={`text-2xl font-black ${liveWaitTimes.food > 10 ? 'text-amber-400' : 'text-emerald-400'}`}>{liveWaitTimes.food} min</div>
                   </div>
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
                     <div className="text-slate-400 mb-2"><Search size={20} /></div>
                     <div className="font-bold text-sm mb-1 text-white">Merch Store 3</div>
-                    <div className="text-2xl font-black text-amber-400">12 min</div>
+                    <div className={`text-2xl font-black ${liveWaitTimes.merch > 15 ? 'text-red-400' : (liveWaitTimes.merch > 8 ? 'text-amber-400' : 'text-emerald-400')}`}>{liveWaitTimes.merch} min</div>
                   </div>
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
                     <div className="text-slate-400 mb-2"><MapPin size={20} /></div>
                     <div className="font-bold text-sm mb-1 text-white">Gate C Restrooms</div>
-                    <div className="text-2xl font-black text-emerald-400">2 min</div>
+                    <div className={`text-2xl font-black ${liveWaitTimes.restroom > 5 ? 'text-amber-400' : 'text-emerald-400'}`}>{liveWaitTimes.restroom} min</div>
                   </div>
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
                     <div className="text-slate-400 mb-2"><MapPin size={20} /></div>
                     <div className="font-bold text-sm mb-1 text-white">Main Entrance</div>
-                    <div className="text-2xl font-black text-red-400">28 min</div>
+                    <div className={`text-2xl font-black ${liveWaitTimes.entrance > 20 ? 'text-red-400' : (liveWaitTimes.entrance > 10 ? 'text-amber-400' : 'text-emerald-400')}`}>{liveWaitTimes.entrance} min</div>
                   </div>
                 </div>
               </div>
@@ -418,7 +430,10 @@ export default function FanApp() {
                         <span>{stadium.region}</span>
                       </div>
                       <button 
-                        onClick={() => setActiveTab('explore')}
+                        onClick={() => {
+                          setSelectedStadium(stadium.name);
+                          setActiveTab('explore');
+                        }}
                         className="flex items-center gap-1 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors"
                       >
                         <MapPin size={12} /> Seating Plan
