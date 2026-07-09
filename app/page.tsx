@@ -57,9 +57,9 @@ export default function FanApp() {
   };
 
   return (
-    <div className="bg-black min-h-screen font-sans text-slate-100 selection:bg-emerald-500/30 flex justify-center">
+    <div className="bg-black h-[100dvh] overflow-hidden font-sans text-slate-100 selection:bg-emerald-500/30 flex justify-center">
       {/* Mobile Frame Container */}
-      <div className="w-full max-w-md bg-slate-950 min-h-screen relative shadow-2xl flex flex-col border-x border-slate-900/50">
+      <div className="w-full max-w-md bg-slate-950 h-full relative shadow-2xl flex flex-col border-x border-slate-900/50">
         
         {/* Header */}
         <header className="px-6 pt-12 pb-4 bg-gradient-to-b from-slate-900 to-transparent sticky top-0 z-10 backdrop-blur-md border-b border-slate-800/50">
