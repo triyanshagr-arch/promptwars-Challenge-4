@@ -20,12 +20,17 @@ export async function POST(req: Request) {
     });
     
     // Construct conversation history for Gemini
-    const chat = model.startChat({
-      history: messages.map((m: any) => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }],
-      })).slice(0, -1), // Everything except the last message
-    });
+    let history = messages.map((m: any) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    })).slice(0, -1); // Everything except the last message
+
+    // Gemini API requires the first message in the history to be from the 'user'
+    if (history.length > 0 && history[0].role === 'model') {
+      history = history.slice(1);
+    }
+
+    const chat = model.startChat({ history });
 
     const lastMessage = messages[messages.length - 1].content;
     const result = await chat.sendMessage(lastMessage);
