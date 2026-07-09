@@ -12,6 +12,7 @@ export default function FanApp() {
   const [messages, setMessages] = useState([{ role: 'model', content: "Hi! I'm your Stadium AI Assistant. How can I help you have the perfect match day?" }]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showARMap, setShowARMap] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -325,15 +326,18 @@ export default function FanApp() {
                 Live Explore
               </h2>
               
-              <div className="relative h-48 bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-lg group cursor-pointer flex items-center justify-center">
+              <div 
+                onClick={() => setShowARMap(true)}
+                className="relative h-48 bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-lg group cursor-pointer flex items-center justify-center"
+              >
                  {/* Fake Map Background */}
-                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                 <div className="absolute inset-0 opacity-20 group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(16,185,129,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
                  <div className="text-center z-10">
-                   <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 ring-4 ring-emerald-500/10">
+                   <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 ring-4 ring-emerald-500/10 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors duration-300">
                      <MapPin size={24} />
                    </div>
-                   <div className="font-bold text-white">Interactive Stadium Map</div>
-                   <div className="text-xs text-slate-400 mt-1 group-hover:text-emerald-400 transition-colors flex items-center justify-center gap-1">Tap to open AR view <ChevronRight size={14}/></div>
+                   <div className="font-bold text-white group-hover:text-emerald-400 transition-colors">Interactive Stadium Map</div>
+                   <div className="text-xs text-slate-400 mt-1 group-hover:text-emerald-500 transition-colors flex items-center justify-center gap-1">Tap to open AR view <ChevronRight size={14}/></div>
                  </div>
               </div>
 
@@ -497,6 +501,99 @@ export default function FanApp() {
           )}
           
         </main>
+
+        {/* AR MAP MODAL */}
+        {showARMap && (
+          <div className="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-2xl flex flex-col animate-in fade-in zoom-in-95 duration-300">
+            <div className="p-6 flex justify-between items-center border-b border-slate-800/50 bg-slate-900/20">
+              <div>
+                <h3 className="font-black text-white flex items-center gap-2">
+                  <MapPin className="text-emerald-400" size={18} />
+                  Live AR Map
+                </h3>
+                <p className="text-[10px] text-emerald-500 font-mono tracking-widest uppercase mt-1">Connecting to Stadium Network...</p>
+              </div>
+              <button 
+                onClick={() => setShowARMap(false)}
+                className="w-10 h-10 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="flex-1 relative flex items-center justify-center overflow-hidden">
+              {/* Radar Grid */}
+              <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(16,185,129,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+              
+              {/* Radar Sweep Animation (using CSS via style block) */}
+              <style dangerouslySetInnerHTML={{__html: `
+                @keyframes radar-spin {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+                @keyframes pulse-ring {
+                  0% { transform: scale(0.8); opacity: 0.5; }
+                  100% { transform: scale(1.5); opacity: 0; }
+                }
+                @keyframes blink-dot {
+                  0%, 100% { opacity: 1; transform: scale(1); }
+                  50% { opacity: 0.4; transform: scale(0.8); }
+                }
+              `}} />
+
+              {/* Central Map Visual */}
+              <div className="relative w-80 h-80 rounded-full border border-emerald-500/30 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+                {/* Radar Sweep */}
+                <div 
+                  className="absolute inset-0 rounded-full" 
+                  style={{ 
+                    background: 'conic-gradient(from 0deg, transparent 70%, rgba(16,185,129,0.4) 100%)',
+                    animation: 'radar-spin 4s linear infinite'
+                  }}
+                />
+                {/* Rings */}
+                <div className="absolute w-60 h-60 rounded-full border border-emerald-500/20" />
+                <div className="absolute w-40 h-40 rounded-full border border-emerald-500/20" />
+                
+                {/* Pulse */}
+                <div className="absolute inset-0 rounded-full border-2 border-emerald-400" style={{ animation: 'pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
+                
+                {/* Stadium Pitch */}
+                <div className="relative w-24 h-36 border-2 border-emerald-400 rounded-lg flex flex-col items-center justify-between p-2 z-10 bg-slate-950/50 backdrop-blur-sm shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                  <div className="w-10 h-4 border border-emerald-400 rounded-b-sm border-t-0" />
+                  <div className="w-full h-px bg-emerald-400 absolute top-1/2 left-0" />
+                  <div className="w-8 h-8 rounded-full border border-emerald-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                  <div className="w-10 h-4 border border-emerald-400 rounded-t-sm border-b-0" />
+                </div>
+
+                {/* POI Dots */}
+                <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-400 rounded-full shadow-[0_0_10px_rgba(96,165,250,0.8)]" style={{ animation: 'blink-dot 1.5s ease-in-out infinite' }} />
+                <div className="absolute bottom-1/3 right-1/4 w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.8)]" style={{ animation: 'blink-dot 2s ease-in-out infinite 0.5s' }} />
+                <div className="absolute top-1/2 right-6 w-4 h-4 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.8)] flex items-center justify-center" style={{ animation: 'blink-dot 1s ease-in-out infinite' }}>
+                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                </div>
+              </div>
+
+              {/* Data Overlay */}
+              <div className="absolute bottom-8 left-6 right-6">
+                 <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700 p-4 rounded-2xl shadow-2xl">
+                    <div className="flex items-center gap-3 mb-2">
+                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+                       <span className="text-sm font-bold text-slate-200">Your Seat (Sec 112)</span>
+                    </div>
+                    <div className="flex items-center gap-3 mb-2">
+                       <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                       <span className="text-sm font-bold text-slate-200">Nearest Restroom (4 min)</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                       <span className="text-sm font-bold text-slate-200">Gate C Entrance (High Traffic)</span>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Navigation */}
         <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-2 py-4 pb-8 flex justify-between items-center z-20">
