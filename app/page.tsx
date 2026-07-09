@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight } from 'lucide-react';
+import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy } from 'lucide-react';
 
 export default function FanApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -304,14 +304,61 @@ export default function FanApp() {
 
             </div>
           )}
+
+          {/* ---- STADIUMS TAB ---- */}
+          {activeTab === 'stadiums' && (
+            <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Trophy className="text-emerald-400" size={20} />
+                Host Stadiums
+              </h2>
+              <p className="text-sm text-slate-400 mb-6">Explore the 16 iconic venues hosting the 2026 FIFA World Cup across North America.</p>
+              
+              <div className="space-y-4">
+                {[
+                  { city: 'New York/New Jersey', name: 'MetLife Stadium', capacity: '82,500', region: 'East' },
+                  { city: 'Dallas', name: 'AT&T Stadium', capacity: '80,000', region: 'Central' },
+                  { city: 'Mexico City', name: 'Estadio Azteca', capacity: '83,000', region: 'Mexico' },
+                  { city: 'Kansas City', name: 'Arrowhead Stadium', capacity: '76,000', region: 'Central' },
+                  { city: 'Houston', name: 'NRG Stadium', capacity: '72,000', region: 'Central' },
+                  { city: 'Atlanta', name: 'Mercedes-Benz Stadium', capacity: '71,000', region: 'East' },
+                  { city: 'Los Angeles', name: 'SoFi Stadium', capacity: '70,000', region: 'West' },
+                  { city: 'Philadelphia', name: 'Lincoln Financial Field', capacity: '69,000', region: 'East' },
+                  { city: 'Seattle', name: 'Lumen Field', capacity: '69,000', region: 'West' },
+                  { city: 'San Francisco', name: 'Levi\\'s Stadium', capacity: '68,500', region: 'West' },
+                  { city: 'Miami', name: 'Hard Rock Stadium', capacity: '65,000', region: 'East' },
+                  { city: 'Boston', name: 'Gillette Stadium', capacity: '65,000', region: 'East' },
+                  { city: 'Vancouver', name: 'BC Place', capacity: '54,500', region: 'Canada' },
+                  { city: 'Monterrey', name: 'Estadio BBVA', capacity: '53,500', region: 'Mexico' },
+                  { city: 'Guadalajara', name: 'Estadio Akron', capacity: '48,000', region: 'Mexico' },
+                  { city: 'Toronto', name: 'BMO Field', capacity: '45,000', region: 'Canada' },
+                ].map((stadium, i) => (
+                  <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm group hover:border-emerald-500/50 transition-colors">
+                    <div>
+                      <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">{stadium.city}</div>
+                      <div className="font-bold text-white text-lg">{stadium.name}</div>
+                      <div className="text-xs text-slate-400 mt-1 flex items-center gap-3">
+                        <span>Capacity: {stadium.capacity}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+                        <span>{stadium.region}</span>
+                      </div>
+                    </div>
+                    <div className="text-slate-600 group-hover:text-emerald-400 transition-colors">
+                      <ChevronRight size={20} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-6 py-4 pb-8 flex justify-between items-center z-20">
+        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-4 py-4 pb-8 flex justify-between items-center z-20">
           <button 
             onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-emerald-500/10' : ''}`}>
               <Home size={22} className={activeTab === 'home' ? 'fill-emerald-400/20' : ''} />
@@ -320,8 +367,18 @@ export default function FanApp() {
           </button>
 
           <button 
+            onClick={() => setActiveTab('stadiums')}
+            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'stadiums' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            <div className={`p-2 rounded-xl transition-all ${activeTab === 'stadiums' ? 'bg-emerald-500/10' : ''}`}>
+              <Trophy size={22} className={activeTab === 'stadiums' ? 'fill-emerald-400/20' : ''} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider">Stadiums</span>
+          </button>
+
+          <button 
             onClick={() => setActiveTab('assistant')}
-            className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'assistant' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'assistant' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'assistant' ? 'bg-emerald-500/10' : ''}`}>
               <MessageCircle size={22} className={activeTab === 'assistant' ? 'fill-emerald-400/20' : ''} />
@@ -331,7 +388,7 @@ export default function FanApp() {
 
           <button 
             onClick={() => setActiveTab('explore')}
-            className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'explore' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'explore' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'explore' ? 'bg-emerald-500/10' : ''}`}>
               <Map size={22} className={activeTab === 'explore' ? 'fill-emerald-400/20' : ''} />
