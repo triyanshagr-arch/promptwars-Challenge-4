@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket } from 'lucide-react';
+import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket, AlertTriangle, PackageSearch } from 'lucide-react';
 
 export default function FanApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -14,6 +14,7 @@ export default function FanApp() {
   const [isTyping, setIsTyping] = useState(false);
   const [showARMap, setShowARMap] = useState(false);
   const [selectedStadium, setSelectedStadium] = useState('MetLife Stadium');
+  const [actionModal, setActionModal] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Dynamic wait times based on selected stadium
@@ -382,6 +383,33 @@ export default function FanApp() {
                 </div>
               </div>
 
+              <div>
+                <h3 className="font-bold text-lg mb-4 mt-8">Stadium Services</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div 
+                    onClick={() => setActionModal('incident')}
+                    className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm cursor-pointer hover:border-red-500/50 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <AlertTriangle size={20} />
+                    </div>
+                    <div className="font-bold text-white text-sm mb-1">Log Incident</div>
+                    <div className="text-xs text-slate-400">Report safety concerns instantly.</div>
+                  </div>
+                  
+                  <div 
+                    onClick={() => setActionModal('lost')}
+                    className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm cursor-pointer hover:border-amber-500/50 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <PackageSearch size={20} />
+                    </div>
+                    <div className="font-bold text-white text-sm mb-1">Lost & Found</div>
+                    <div className="text-xs text-slate-400">Report missing items here.</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -610,6 +638,81 @@ export default function FanApp() {
                  </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ACTION MODALS */}
+        {actionModal && (
+          <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-200">
+             <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-sm">
+                
+                {actionModal === 'incident' && (
+                  <>
+                    <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4 mx-auto">
+                      <AlertTriangle size={24} />
+                    </div>
+                    <h3 className="font-black text-white text-center text-xl mb-2">Log an Incident</h3>
+                    <p className="text-xs text-slate-400 text-center mb-6">Security will be dispatched to your location ({selectedStadium}). This report is anonymous.</p>
+                    
+                    <textarea 
+                      placeholder="Describe the incident (e.g., Spill in Sec 112, rowdy fan)..."
+                      className="w-full h-24 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition-colors text-slate-200 resize-none mb-4"
+                    ></textarea>
+                    
+                    <button 
+                      onClick={() => {
+                        alert("Incident reported successfully. Security is en route.");
+                        setActionModal(null);
+                      }}
+                      className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors mb-3"
+                    >
+                      Submit Report
+                    </button>
+                  </>
+                )}
+
+                {actionModal === 'lost' && (
+                  <>
+                    <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mb-4 mx-auto">
+                      <PackageSearch size={24} />
+                    </div>
+                    <h3 className="font-black text-white text-center text-xl mb-2">Lost & Found</h3>
+                    <p className="text-xs text-slate-400 text-center mb-6">Connect with the {selectedStadium} lost & found department.</p>
+                    
+                    <input 
+                      type="text"
+                      placeholder="What did you lose? (e.g., Blue cap)"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition-colors text-slate-200 mb-4"
+                    />
+                    
+                    <button 
+                      onClick={() => {
+                        alert("Item logged. We will notify you if it is turned in.");
+                        setActionModal(null);
+                      }}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-colors mb-3"
+                    >
+                      Report Lost Item
+                    </button>
+                    <button 
+                      onClick={() => {
+                        alert("Thank you! Please bring the item to the nearest information desk.");
+                        setActionModal(null);
+                      }}
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors mb-3"
+                    >
+                      I Found an Item
+                    </button>
+                  </>
+                )}
+
+                <button 
+                  onClick={() => setActionModal(null)}
+                  className="w-full text-slate-400 hover:text-white font-bold py-2 text-sm transition-colors"
+                >
+                  Cancel
+                </button>
+             </div>
           </div>
         )}
 
