@@ -22,9 +22,9 @@ export default function FanApp() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [translateInput, setTranslateInput] = useState('');
   const [sourceLang, setSourceLang] = useState('English');
-  const [targetLang, setTargetLang] = useState('Spanish');
+  const [targetLang, setTargetLang] = useState('Español');
   const [translationLog, setTranslationLog] = useState([
-    { source: "Where is the nearest entrance to sector 112?", target: "¿Dónde está la entrada más cercana al sector 112?", srcLang: "English", tgtLang: "Spanish" }
+    { source: "Where is the nearest entrance to sector 112?", target: "¿Dónde está la entrada más cercana al sector 112?", srcLang: "English", tgtLang: "Español" }
   ]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -359,8 +359,15 @@ export default function FanApp() {
                     className="bg-transparent text-white font-bold px-3 py-2 outline-none appearance-none cursor-pointer flex-1 text-center"
                   >
                     <option value="English">English</option>
-                    <option value="Spanish">Spanish</option>
-                    <option value="French">French</option>
+                    <option value="Español">Español</option>
+                    <option value="Français">Français</option>
+                    <option value="Português">Português</option>
+                    <option value="Deutsch">Deutsch</option>
+                    <option value="العربية">العربية</option>
+                    <option value="日本語">日本語</option>
+                    <option value="한국어">한국어</option>
+                    <option value="中文">中文</option>
+                    <option value="हिन्दी">हिन्दी</option>
                   </select>
                   
                   <button 
@@ -379,9 +386,16 @@ export default function FanApp() {
                     onChange={(e) => setTargetLang(e.target.value)}
                     className="bg-transparent text-emerald-400 font-bold px-3 py-2 outline-none appearance-none cursor-pointer flex-1 text-center"
                   >
-                    <option value="Spanish">Spanish</option>
                     <option value="English">English</option>
-                    <option value="French">French</option>
+                    <option value="Español">Español</option>
+                    <option value="Français">Français</option>
+                    <option value="Português">Português</option>
+                    <option value="Deutsch">Deutsch</option>
+                    <option value="العربية">العربية</option>
+                    <option value="日本語">日本語</option>
+                    <option value="한국어">한국어</option>
+                    <option value="中文">中文</option>
+                    <option value="हिन्दी">हिन्दी</option>
                   </select>
                 </div>
               </div>
@@ -402,7 +416,25 @@ export default function FanApp() {
                       <div className="bg-emerald-900/20 p-4 rounded-2xl rounded-tr-sm border border-emerald-500/20">
                         <div className="flex justify-between items-center mb-1 gap-4">
                            <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{log.tgtLang}</div>
-                           <Volume2 size={12} className="text-emerald-500 cursor-pointer" />
+                           <button 
+                             onClick={() => {
+                               if ('speechSynthesis' in window) {
+                                 window.speechSynthesis.cancel();
+                                 const textToSpeak = log.target.replace(/\[.*?\]\s*/g, '');
+                                 const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                                 const langMap: Record<string, string> = {
+                                   'English': 'en-US', 'Español': 'es-ES', 'Français': 'fr-FR',
+                                   'Português': 'pt-PT', 'Deutsch': 'de-DE', 'العربية': 'ar-SA',
+                                   '日本語': 'ja-JP', '한국어': 'ko-KR', '中文': 'zh-CN', 'हिन्दी': 'hi-IN'
+                                 };
+                                 utterance.lang = langMap[log.tgtLang] || 'en-US';
+                                 window.speechSynthesis.speak(utterance);
+                               }
+                             }}
+                             className="text-emerald-500 hover:text-emerald-300 transition-colors bg-transparent border-none p-1 -m-1 outline-none"
+                           >
+                             <Volume2 size={16} />
+                           </button>
                         </div>
                         <p className="text-emerald-50 text-right">{log.target}</p>
                       </div>
@@ -438,9 +470,7 @@ export default function FanApp() {
                     if (!translateInput.trim()) return;
                     setIsTranslating(true);
                     
-                    const mockTranslatedText = targetLang === 'Spanish' 
-                      ? `[Español] ${translateInput}` 
-                      : `[${targetLang}] ${translateInput}`;
+                    const mockTranslatedText = `[${targetLang}] ${translateInput}`;
 
                     setTimeout(() => {
                       setTranslationLog(prev => [...prev, { 
