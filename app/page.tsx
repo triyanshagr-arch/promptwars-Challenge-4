@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket, AlertTriangle, PackageSearch, ShieldAlert } from 'lucide-react';
+import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket, AlertTriangle, PackageSearch, ShieldAlert, Languages, Mic, ArrowRightLeft, Volume2 } from 'lucide-react';
 
 export default function FanApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -16,8 +16,12 @@ export default function FanApp() {
   const [selectedStadium, setSelectedStadium] = useState('MetLife Stadium');
   const [actionModal, setActionModal] = useState<string | null>(null);
   const [actionStatus, setActionStatus] = useState<'idle' | 'processing' | 'success'>('idle');
+  const [actionStatus, setActionStatus] = useState<'idle' | 'processing' | 'success'>('idle');
   const [incidentLocation, setIncidentLocation] = useState('Seat (Sec 112)');
   const [lostLocation, setLostLocation] = useState('Seat (Sec 112)');
+  const [isListening, setIsListening] = useState(false);
+  const [sourceLang, setSourceLang] = useState('English');
+  const [targetLang, setTargetLang] = useState('Spanish');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Dynamic wait times based on selected stadium
@@ -331,6 +335,98 @@ export default function FanApp() {
                   </div>
                 </>
               )}
+            </div>
+          )}
+
+          {/* ---- TRANSLATE TAB ---- */}
+          {activeTab === 'translate' && (
+            <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="p-6 pb-2">
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                  <Languages className="text-emerald-400" size={20} />
+                  Live AI Translator
+                </h2>
+                
+                {/* Language Selector */}
+                <div className="flex items-center justify-between bg-slate-900 border border-slate-800 p-2 rounded-2xl mb-6 shadow-sm">
+                  <select 
+                    value={sourceLang}
+                    onChange={(e) => setSourceLang(e.target.value)}
+                    className="bg-transparent text-white font-bold px-3 py-2 outline-none appearance-none cursor-pointer flex-1 text-center"
+                  >
+                    <option value="English">English</option>
+                    <option value="Spanish">Spanish</option>
+                    <option value="French">French</option>
+                  </select>
+                  
+                  <button 
+                    onClick={() => {
+                      const temp = sourceLang;
+                      setSourceLang(targetLang);
+                      setTargetLang(temp);
+                    }}
+                    className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-emerald-400 transition-colors shrink-0"
+                  >
+                    <ArrowRightLeft size={16} />
+                  </button>
+                  
+                  <select 
+                    value={targetLang}
+                    onChange={(e) => setTargetLang(e.target.value)}
+                    className="bg-transparent text-emerald-400 font-bold px-3 py-2 outline-none appearance-none cursor-pointer flex-1 text-center"
+                  >
+                    <option value="Spanish">Spanish</option>
+                    <option value="English">English</option>
+                    <option value="French">French</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Translation Log area */}
+              <div className="flex-1 overflow-y-auto px-6 pb-32 space-y-4">
+                
+                <div className="flex flex-col gap-1">
+                  <div className="bg-slate-800/50 p-4 rounded-2xl rounded-tl-sm border border-slate-700/50">
+                    <div className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">{sourceLang}</div>
+                    <p className="text-slate-200">Where is the nearest entrance to sector 112?</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1 items-end">
+                  <div className="bg-emerald-900/20 p-4 rounded-2xl rounded-tr-sm border border-emerald-500/20">
+                    <div className="flex justify-between items-center mb-1 gap-4">
+                       <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{targetLang}</div>
+                       <Volume2 size={12} className="text-emerald-500 cursor-pointer" />
+                    </div>
+                    <p className="text-emerald-50 text-right">¿Dónde está la entrada más cercana al sector 112?</p>
+                  </div>
+                </div>
+
+                {isListening && (
+                  <div className="flex flex-col gap-1 items-center justify-center py-8">
+                     <div className="flex gap-1 mb-2">
+                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                     </div>
+                     <p className="text-xs font-mono text-emerald-400 animate-pulse">Listening...</p>
+                  </div>
+                )}
+                
+              </div>
+
+              {/* Mic Button Fixed at Bottom (above nav) */}
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                 <button 
+                   onPointerDown={() => setIsListening(true)}
+                   onPointerUp={() => setIsListening(false)}
+                   onPointerLeave={() => setIsListening(false)}
+                   className={`pointer-events-auto w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border-4 ${isListening ? 'bg-emerald-500 border-emerald-400/50 scale-110 shadow-[0_0_40px_rgba(16,185,129,0.5)]' : 'bg-slate-900 border-slate-800 hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]'}`}
+                 >
+                   <Mic size={32} className={isListening ? 'text-slate-950 animate-pulse' : 'text-emerald-400'} />
+                 </button>
+              </div>
+
             </div>
           )}
 
@@ -810,55 +906,53 @@ export default function FanApp() {
         )}
 
         {/* Bottom Navigation */}
-        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-2 py-4 pb-8 flex justify-between items-center z-20">
+        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-2 py-4 pb-8 flex justify-around items-center z-20">
           <button 
             onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'home' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-emerald-500/10' : ''}`}>
-              <Home size={20} className={activeTab === 'home' ? 'fill-emerald-400/20' : ''} />
-            </div>
-            <span className="text-[9px] font-bold tracking-wider">Home</span>
+            <Home size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">Home</span>
           </button>
-
+          
           <button 
             onClick={() => setActiveTab('matches')}
-            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'matches' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'matches' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${activeTab === 'matches' ? 'bg-emerald-500/10' : ''}`}>
-              <CalendarDays size={20} className={activeTab === 'matches' ? 'fill-emerald-400/20' : ''} />
-            </div>
-            <span className="text-[9px] font-bold tracking-wider">Matches</span>
+            <CalendarDays size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">Matches</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('stadiums')}
-            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'stadiums' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'stadiums' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${activeTab === 'stadiums' ? 'bg-emerald-500/10' : ''}`}>
-              <MapPin size={20} className={activeTab === 'stadiums' ? 'fill-emerald-400/20' : ''} />
-            </div>
-            <span className="text-[9px] font-bold tracking-wider">Stadiums</span>
+            <MapPin size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">Stadiums</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('translate')}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'translate' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            <Languages size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">Translate</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('assistant')}
-            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'assistant' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'assistant' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${activeTab === 'assistant' ? 'bg-emerald-500/10' : ''}`}>
-              <MessageCircle size={20} className={activeTab === 'assistant' ? 'fill-emerald-400/20' : ''} />
-            </div>
-            <span className="text-[9px] font-bold tracking-wider">Concierge</span>
+            <MessageCircle size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">Concierge</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('explore')}
-            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'explore' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl flex-1 transition-all ${activeTab === 'explore' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 hover:text-slate-300'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${activeTab === 'explore' ? 'bg-emerald-500/10' : ''}`}>
-              <Map size={20} className={activeTab === 'explore' ? 'fill-emerald-400/20' : ''} />
-            </div>
-            <span className="text-[9px] font-bold tracking-wider">Explore</span>
+            <Map size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">Explore</span>
           </button>
         </nav>
 
