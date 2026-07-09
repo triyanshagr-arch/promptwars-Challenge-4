@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       systemInstruction: "You are the official AI Stadium Assistant for the FIFA World Cup 2026. Be highly enthusiastic, helpful, and concise. You can answer questions about football rules, stadium locations, food options, and match stats. Keep your answers under 3 sentences for mobile readability."
     });
     

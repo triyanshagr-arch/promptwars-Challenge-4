@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `You are a personalized FIFA World Cup 2026 AI Assistant.
 A fan is arriving at ${arrivalTime}, their seat is ${seatNumber}, and they support ${team}.
 Generate a fun, 3-step personalized itinerary for them before the match starts.
