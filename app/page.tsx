@@ -1,547 +1,346 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle, Clock, MapPin, Activity, Radio, TrendingUp, Zap, Send, Globe, Search, PlusCircle, ShieldAlert, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useState, useRef, useEffect } from 'react';
+import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight } from 'lucide-react';
 
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('operations'); // operations, predictive, broadcast, sentiment, lostfound
-  const [incidents, setIncidents] = useState<any[]>([]);
+export default function FanApp() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [itinerary, setItinerary] = useState<any[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [form, setForm] = useState({ arrivalTime: '18:00', seatNumber: 'Sec 112, Row F', team: 'Mexico' });
   
-  // Broadcast State
-  const [announcement, setAnnouncement] = useState('');
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
-  const [translations, setTranslations] = useState<{language: string, text: string}[] | null>(null);
-
-  // Sentiment State
-  const [sentiment, setSentiment] = useState<{score: number, trend: string, analysis: string} | null>(null);
-
-  // Predictive State
-  const [bottlenecks, setBottlenecks] = useState<{location: string, severity: string, prediction: string}[]>([]);
-
-  // Lost & Found State
-  const [lostItems, setLostItems] = useState<any[]>([]);
-  const [foundItems, setFoundItems] = useState<any[]>([]);
-  const [matches, setMatches] = useState<any[]>([]);
-  const [isMatching, setIsMatching] = useState(false);
-  
-  // Staffing State
-  const [staffSuggestions, setStaffSuggestions] = useState<{action: string, detail: string}[]>([]);
-  const [isGeneratingStaff, setIsGeneratingStaff] = useState(false);
-  
-  const generateStaffing = async () => {
-    setIsGeneratingStaff(true);
-    try {
-      const res = await fetch('/api/staffing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ incidents, bottlenecks })
-      });
-      const data = await res.json();
-      setStaffSuggestions(data.suggestions || []);
-    } catch (e) {
-      console.error(e);
-    }
-    setIsGeneratingStaff(false);
-  };
-  
-  // Manual Log Found Item
-  const [manualFoundItem, setManualFoundItem] = useState('');
-  const [manualFoundLocation, setManualFoundLocation] = useState('');
-  
-  const fetchIncidents = async () => {
-    try {
-      const res = await fetch('/api/incidents');
-      const data = await res.json();
-      setIncidents(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const fetchSentiment = async () => {
-    try {
-      const res = await fetch('/api/sentiment');
-      const data = await res.json();
-      setSentiment(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const fetchPredictive = async () => {
-    try {
-      const res = await fetch('/api/predictive');
-      const data = await res.json();
-      setBottlenecks(data.bottlenecks || []);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const fetchLostAndFound = async () => {
-    try {
-      const res = await fetch('/api/lostandfound');
-      const data = await res.json();
-      setLostItems(data.lostItems || []);
-      setFoundItems(data.foundItems || []);
-    } catch(e) {
-      console.error(e);
-    }
-  }
+  // Chat State
+  const [messages, setMessages] = useState([{ role: 'model', content: "Hi! I'm your Stadium AI Assistant. How can I help you have the perfect match day?" }]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchIncidents();
-    fetchSentiment();
-    fetchPredictive();
-    fetchLostAndFound();
-    const interval = setInterval(() => {
-      fetchIncidents();
-      fetchLostAndFound();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  const updateStatus = async (id: string, status: string) => {
-    await fetch('/api/incidents', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status })
-    });
-    fetchIncidents();
-  };
-
-  const handleBroadcast = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!announcement) return;
-    setIsBroadcasting(true);
+  const generateItinerary = async () => {
+    setIsGenerating(true);
     try {
-      const res = await fetch('/api/broadcast', {
+      const res = await fetch('/api/itinerary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ announcement })
+        body: JSON.stringify(form)
       });
       const data = await res.json();
-      if(data.translations) {
-        setTranslations(data.translations);
-      } else {
-        alert("Error generating translations: " + data.error);
-      }
+      setItinerary(data.itinerary || []);
     } catch (e) {
       console.error(e);
     }
-    setIsBroadcasting(false);
+    setIsGenerating(false);
   };
 
-  const logFoundItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/lostandfound', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'found', item: { description: manualFoundItem, location: manualFoundLocation } })
-      });
-      setManualFoundItem('');
-      setManualFoundLocation('');
-      fetchLostAndFound();
-    } catch (e) {
-      alert("Failed to log found item");
-    }
-  };
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+    
+    const newMessages = [...messages, { role: 'user', content: input }];
+    setMessages(newMessages);
+    setInput('');
+    setIsTyping(true);
 
-  const runAIMatcher = async () => {
-    setIsMatching(true);
     try {
-      const res = await fetch('/api/matcher', {
+      const res = await fetch('/api/fan-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lostItems, foundItems })
+        body: JSON.stringify({ messages: newMessages })
       });
       const data = await res.json();
-      setMatches(data.matches || []);
+      setMessages([...newMessages, { role: 'model', content: data.reply }]);
     } catch (e) {
-      alert("AI Matcher Failed");
+      console.error(e);
     }
-    setIsMatching(false);
-  }
-
-  const chartData = [
-    { name: 'Gate A', wait: 15 },
-    { name: 'Gate B', wait: 45 },
-    { name: 'Gate C', wait: 10 },
-    { name: 'Gate D', wait: 5 },
-  ];
+    setIsTyping(false);
+  };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans">
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col z-10">
-        <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">StadiumSync <span className="text-emerald-400">COMMAND</span></h1>
-        <p className="text-slate-400 text-sm mb-8">World Cup 2026 Ops</p>
+    <div className="bg-black min-h-screen font-sans text-slate-100 selection:bg-emerald-500/30 flex justify-center">
+      {/* Mobile Frame Container */}
+      <div className="w-full max-w-md bg-slate-950 min-h-screen relative shadow-2xl flex flex-col border-x border-slate-900/50">
         
-        <nav className="flex-1 space-y-2">
-          <button onClick={() => setActiveTab('operations')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${activeTab === 'operations' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
-            <Activity size={20} /> Live Operations
-          </button>
-          <button onClick={() => setActiveTab('predictive')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${activeTab === 'predictive' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
-            <Zap size={20} /> Predictive Analytics
-          </button>
-          <button onClick={() => setActiveTab('broadcast')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${activeTab === 'broadcast' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
-            <Radio size={20} /> AI Broadcast
-          </button>
-          <button onClick={() => setActiveTab('sentiment')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${activeTab === 'sentiment' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
-            <TrendingUp size={20} /> Fan Sentiment
-          </button>
-          <button onClick={() => setActiveTab('lostfound')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${activeTab === 'lostfound' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
-            <Search size={20} /> AI Lost & Found
-          </button>
-
-        </nav>
-      </aside>
-
-      <main className="flex-1 p-8 overflow-y-auto relative">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-white">
-            {activeTab === 'operations' && 'Live Operations Center'}
-            {activeTab === 'predictive' && 'AI Predictive Heatmaps'}
-            {activeTab === 'broadcast' && 'Multilingual Broadcasts'}
-            {activeTab === 'sentiment' && 'Live Fan Sentiment'}
-            {activeTab === 'lostfound' && 'AI Matcher: Lost & Found'}
-
-          </h2>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-red-400 font-medium text-sm">Live System Active</span>
+        {/* Header */}
+        <header className="px-6 pt-12 pb-4 bg-gradient-to-b from-slate-900 to-transparent sticky top-0 z-10 backdrop-blur-md border-b border-slate-800/50">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                Stadium<span className="text-emerald-400">Sync</span>
+              </h1>
+              <p className="text-xs text-slate-400 font-medium">World Cup 2026 Fan Hub</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-500/20">
+              <User size={18} className="text-slate-950" />
+            </div>
           </div>
-        </div>
+        </header>
 
-        {activeTab === 'operations' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            
-            {/* Added Manual Found Item Logger to Operations */}
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-8 flex items-center justify-between shadow">
-               <div>
-                 <h3 className="text-lg font-bold text-emerald-400 flex items-center gap-2"><PlusCircle size={18}/> Manual Log: Found Item</h3>
-                 <p className="text-sm text-slate-400">Security desk: log an item handed in.</p>
-               </div>
-               <form onSubmit={logFoundItem} className="flex gap-3 flex-1 max-w-xl ml-8">
-                 <input required value={manualFoundItem} onChange={e => setManualFoundItem(e.target.value)} type="text" placeholder="Description (e.g. Red Cap)" className="bg-slate-950 border border-slate-700 px-4 py-2 rounded-lg flex-1 outline-none focus:border-emerald-500" />
-                 <input value={manualFoundLocation} onChange={e => setManualFoundLocation(e.target.value)} type="text" placeholder="Where found" className="bg-slate-950 border border-slate-700 px-4 py-2 rounded-lg w-1/3 outline-none focus:border-emerald-500" />
-                 <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-lg font-bold transition-colors shadow">Log Item</button>
-               </form>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center items-center text-center shadow-sm">
-                <div className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-bold">Active Gates</div>
-                <div className="text-5xl font-black text-emerald-400">4<span className="text-2xl text-emerald-400/50">/4</span></div>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center items-center text-center shadow-sm">
-                <div className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-bold">Avg Wait Time</div>
-                <div className="text-5xl font-black text-amber-400">18<span className="text-2xl text-amber-400/50">m</span></div>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center items-center text-center shadow-sm">
-                <div className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-bold">High Density Zone</div>
-                <div className="text-3xl font-black text-red-400 mt-2">Gate B</div>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center items-center text-center shadow-sm">
-                <div className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-bold">Active Incidents</div>
-                <div className="text-5xl font-black text-red-400">{incidents.filter(i => i.status !== 'resolved').length}</div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-              {/* Left Side: Chart */}
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col">
-                <h3 className="text-lg font-semibold mb-4 text-slate-300">Gate Wait Times (Mins)</h3>
-                <div className="flex-1 min-h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <XAxis dataKey="name" stroke="#475569" />
-                      <YAxis stroke="#475569" />
-                      <Tooltip cursor={{fill: '#1e293b'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '8px'}} />
-                      <Bar dataKey="wait" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+        {/* Scrollable Content Area */}
+        <main className="flex-1 overflow-y-auto pb-24 scroll-smooth">
+          
+          {/* ---- HOME TAB ---- */}
+          {activeTab === 'home' && (
+            <div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              {/* Match Card */}
+              <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl p-6 border border-slate-800 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full"></div>
+                <div className="flex justify-between items-center mb-6 relative z-10">
+                  <div className="text-center flex-1">
+                    <div className="text-3xl font-black mb-1">USA</div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Home</div>
+                  </div>
+                  <div className="px-4 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs font-bold text-slate-300">
+                    VS
+                  </div>
+                  <div className="text-center flex-1">
+                    <div className="text-3xl font-black mb-1">MEX</div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Away</div>
+                  </div>
+                </div>
+                <div className="bg-slate-950/50 rounded-2xl p-4 flex justify-between items-center border border-slate-800/50 relative z-10">
+                  <div>
+                    <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">Kickoff</div>
+                    <div className="text-lg font-bold">20:00 Local</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Gate</div>
+                    <div className="text-lg font-bold">C North</div>
+                  </div>
                 </div>
               </div>
 
-              {/* Right Side: Staffing */}
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2"><Users className="text-emerald-400"/> AI Staff Deployment</h3>
-                    <p className="text-slate-400 text-sm">Dynamic reallocation strategies.</p>
+              {/* AI Itinerary Builder */}
+              <div>
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Clock className="text-emerald-400" size={20} />
+                  Your Smart Itinerary
+                </h2>
+                
+                {itinerary.length === 0 ? (
+                  <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-lg">
+                    <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+                      Let our AI plan your perfect match day. Enter your details below to avoid crowds and maximize the fun!
+                    </p>
+                    <div className="space-y-4 mb-6">
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Arrival Time</label>
+                        <input 
+                          type="time" 
+                          value={form.arrivalTime}
+                          onChange={e => setForm({...form, arrivalTime: e.target.value})}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Seat</label>
+                          <input 
+                            type="text" 
+                            value={form.seatNumber}
+                            onChange={e => setForm({...form, seatNumber: e.target.value})}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Supporting</label>
+                          <select 
+                            value={form.team}
+                            onChange={e => setForm({...form, team: e.target.value})}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors appearance-none"
+                          >
+                            <option>USA</option>
+                            <option>Mexico</option>
+                            <option>Neutral</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={generateItinerary}
+                      disabled={isGenerating}
+                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2"
+                    >
+                      {isGenerating ? (
+                         <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>Generate with AI <ArrowRight size={18} /></>
+                      )}
+                    </button>
                   </div>
-                  <button onClick={generateStaffing} disabled={isGeneratingStaff} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 text-sm">
-                    {isGeneratingStaff ? 'Analyzing...' : 'Generate Plan'} <Users size={16} />
+                ) : (
+                  <div className="space-y-4">
+                    {itinerary.map((item, i) => (
+                      <div key={i} className="flex gap-4 group">
+                        <div className="flex flex-col items-center">
+                          <div className="w-8 h-8 rounded-full bg-slate-900 border-2 border-emerald-500/30 flex items-center justify-center group-hover:border-emerald-400 transition-colors z-10">
+                            <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                          </div>
+                          {i !== itinerary.length - 1 && (
+                            <div className="w-0.5 h-full bg-slate-800 my-1" />
+                          )}
+                        </div>
+                        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex-1 shadow-sm mb-4">
+                          <div className="text-emerald-400 font-bold text-sm mb-1">{item.time}</div>
+                          <div className="text-slate-200 text-sm leading-relaxed">{item.event}</div>
+                        </div>
+                      </div>
+                    ))}
+                    <button onClick={() => setItinerary([])} className="text-slate-500 text-sm font-bold w-full py-4 text-center hover:text-white transition-colors">
+                      Plan a different time
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ---- ASSISTANT TAB ---- */}
+          {activeTab === 'assistant' && (
+            <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-900/30">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <MessageCircle className="text-emerald-400" size={20} />
+                  Stadium AI
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Ask about food, rules, or live stats!</p>
+              </div>
+              
+              <div className="flex-1 p-6 space-y-6 overflow-y-auto min-h-[400px]">
+                {messages.map((m, i) => (
+                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-md ${
+                      m.role === 'user' 
+                        ? 'bg-emerald-500 text-slate-950 rounded-tr-sm font-medium' 
+                        : 'bg-slate-800 text-slate-200 rounded-tl-sm border border-slate-700'
+                    }`}>
+                      {m.content}
+                    </div>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="flex justify-start">
+                     <div className="bg-slate-800 text-slate-400 p-4 rounded-2xl rounded-tl-sm border border-slate-700 flex gap-2 items-center h-12">
+                       <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                       <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                       <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                     </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+
+              <div className="p-4 bg-slate-950 border-t border-slate-900">
+                <div className="relative flex items-center">
+                  <input 
+                    type="text" 
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                    placeholder="Where is the nearest vegan food?"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-full pl-6 pr-14 py-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"
+                  />
+                  <button 
+                    onClick={sendMessage}
+                    disabled={!input.trim() || isTyping}
+                    className="absolute right-2 p-3 bg-emerald-500 text-slate-950 rounded-full disabled:opacity-50 hover:bg-emerald-400 transition-colors"
+                  >
+                    <Send size={16} />
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
-                     <div className="text-2xl font-bold text-slate-200">120</div>
-                     <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">Total Stewards</div>
+          {/* ---- EXPLORE TAB ---- */}
+          {activeTab === 'explore' && (
+            <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Map className="text-emerald-400" size={20} />
+                Live Explore
+              </h2>
+              
+              <div className="relative h-48 bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-lg group cursor-pointer flex items-center justify-center">
+                 {/* Fake Map Background */}
+                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                 <div className="text-center z-10">
+                   <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 ring-4 ring-emerald-500/10">
+                     <MapPin size={24} />
                    </div>
-                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
-                     <div className="text-2xl font-bold text-slate-200">45</div>
-                     <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">Security</div>
-                   </div>
-                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
-                     <div className="text-2xl font-bold text-slate-200">18</div>
-                     <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">Medical</div>
-                   </div>
-                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center shadow-inner">
-                     <div className="text-2xl font-bold text-emerald-400">96%</div>
-                     <div className="text-emerald-400/80 text-xs font-bold uppercase tracking-wider mt-1">Active Duty</div>
-                   </div>
+                   <div className="font-bold text-white">Interactive Stadium Map</div>
+                   <div className="text-xs text-slate-400 mt-1 group-hover:text-emerald-400 transition-colors flex items-center justify-center gap-1">Tap to open AR view <ChevronRight size={14}/></div>
+                 </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-end mb-4 mt-8">
+                  <h3 className="font-bold text-lg">Live Wait Times</h3>
+                  <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md">LIVE</span>
                 </div>
-
-                {staffSuggestions.length > 0 && (
-                  <div className="space-y-3 mt-auto">
-                    <h4 className="text-sm font-bold text-slate-300 mb-2 uppercase tracking-wider">AI Reallocation Plan</h4>
-                    {staffSuggestions.map((s, i) => (
-                      <div key={i} className="bg-slate-950 border border-emerald-500/30 p-4 rounded-xl flex gap-4 items-center">
-                        <div className="bg-emerald-500/10 p-3 rounded-lg text-emerald-400 shadow">
-                          <Users size={20} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-bold text-emerald-400 mb-1">{s.action}</div>
-                          <p className="text-slate-300 text-xs leading-relaxed">{s.detail}</p>
-                        </div>
-                        <button className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-3 py-2 rounded-lg font-bold transition-colors text-xs">
-                          Dispatch
-                        </button>
-                      </div>
-                    ))}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div className="text-slate-400 mb-2"><Coffee size={20} /></div>
+                    <div className="font-bold text-sm mb-1 text-white">Concourse B Food</div>
+                    <div className="text-2xl font-black text-emerald-400">4 min</div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            <h3 className="text-xl font-bold text-white mb-4">Incident Feed & AI Insights</h3>
-            <div className="space-y-4">
-              {incidents.length === 0 ? (
-                <div className="text-slate-500 italic p-8 text-center bg-slate-900/50 rounded-xl border border-slate-800 border-dashed">No active incidents reported.</div>
-              ) : (
-                incidents.map((incident) => (
-                  <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} key={incident.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row gap-6 shadow-lg shadow-black/20">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${incident.status === 'resolved' ? 'bg-emerald-500/20 text-emerald-400' : incident.status === 'investigating' ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'}`}>
-                          {incident.status}
-                        </span>
-                        <span className="text-slate-500 text-sm flex items-center gap-1"><Clock size={14}/> {new Date(incident.timestamp).toLocaleTimeString()}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-300 font-medium text-lg mb-1">
-                        <MapPin size={18} className="text-emerald-400" /> {incident.location}
-                      </div>
-                      <p className="text-slate-400">{incident.description}</p>
-                    </div>
-                    
-                    <div className="flex-1 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                      <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div> AI Action Plan
-                      </div>
-                      <p className="text-sm text-slate-300">{incident.aiActionPlan}</p>
-                    </div>
-
-                    <div className="flex flex-col gap-2 justify-center">
-                      {incident.status === 'new' && (
-                        <button onClick={() => updateStatus(incident.id, 'investigating')} className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                          Mark Investigating
-                        </button>
-                      )}
-                      {incident.status !== 'resolved' && (
-                        <button onClick={() => updateStatus(incident.id, 'resolved')} className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                          Resolve Incident
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-
-
-          </div>
-        )}
-
-        {activeTab === 'broadcast' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 mb-8 max-w-3xl">
-               <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2"><Globe className="text-emerald-400"/> New Multilingual Announcement</h3>
-               <p className="text-slate-400 mb-6">Type a message in English. GenAI will instantly translate it to the top 4 international languages and push it to the fan app.</p>
-               
-               <form onSubmit={handleBroadcast}>
-                 <textarea 
-                   required
-                   value={announcement}
-                   onChange={e => setAnnouncement(e.target.value)}
-                   placeholder="e.g. Attention fans, Gate C is currently experiencing high wait times. Please use Gate A or B for faster entry." 
-                   className="w-full bg-slate-950 rounded-xl p-4 border border-slate-800 outline-none focus:border-emerald-500/50 transition-colors min-h-[120px] mb-4 text-slate-200 resize-none"
-                 />
-                 <button disabled={isBroadcasting} type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50">
-                   {isBroadcasting ? 'Generating Translations...' : 'Translate & Broadcast'} <Send size={18} />
-                 </button>
-               </form>
-             </div>
-
-             {translations && (
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
-                 <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 relative overflow-hidden">
-                   <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-                   <div className="text-sm text-emerald-400 font-bold uppercase tracking-wider mb-2">Original (English)</div>
-                   <p className="text-slate-200 text-lg">{announcement}</p>
-                 </div>
-                 {translations.map((t, i) => (
-                   <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                     <div className="text-sm text-slate-400 font-bold uppercase tracking-wider mb-2">{t.language}</div>
-                     <p className="text-slate-300 text-lg">{t.text}</p>
-                   </div>
-                 ))}
-               </div>
-             )}
-          </div>
-        )}
-
-        {activeTab === 'predictive' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 flex gap-4 max-w-4xl">
-               <Zap className="text-amber-500 shrink-0" size={32} />
-               <div>
-                 <h3 className="text-xl font-bold text-amber-500 mb-1">AI Bottleneck Predictions</h3>
-                 <p className="text-amber-400/80">GenAI has analyzed current live operations, wait times, and incident reports to predict near-future stadium friction points.</p>
-               </div>
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl">
-               {bottlenecks.map((b, i) => (
-                 <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
-                   <div className={`absolute top-0 left-0 w-full h-1 ${b.severity === 'High' ? 'bg-red-500' : b.severity === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                   <div className="flex justify-between items-start mb-4">
-                     <h4 className="font-bold text-white text-xl">{b.location}</h4>
-                     <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${b.severity === 'High' ? 'bg-red-500/20 text-red-400' : b.severity === 'Medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                       {b.severity} Risk
-                     </span>
-                   </div>
-                   <p className="text-slate-300">{b.prediction}</p>
-                 </div>
-               ))}
-               {bottlenecks.length === 0 && (
-                 <div className="col-span-3 text-slate-500 text-center p-12 bg-slate-900 rounded-2xl border border-slate-800 border-dashed">
-                   Loading predictive models...
-                 </div>
-               )}
-             </div>
-          </div>
-        )}
-
-        {activeTab === 'sentiment' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
-             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 mb-6 flex items-center justify-between">
-               <div>
-                 <h3 className="text-2xl font-bold text-white mb-2">Live Stadium Sentiment</h3>
-                 <p className="text-slate-400">Aggregated AI analysis of Fan App activity and wait times.</p>
-               </div>
-               {sentiment ? (
-                 <div className="text-right">
-                   <div className={`text-6xl font-black ${sentiment.score > 70 ? 'text-emerald-400' : sentiment.score > 40 ? 'text-amber-400' : 'text-red-400'}`}>
-                     {sentiment.score}
-                   </div>
-                   <div className="text-slate-400 uppercase tracking-widest text-sm mt-1 font-bold">
-                     Out of 100
-                   </div>
-                 </div>
-               ) : (
-                 <div className="text-slate-500">Calculating...</div>
-               )}
-             </div>
-
-             {sentiment && (
-               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-                 <div className="text-sm text-emerald-400 font-bold uppercase tracking-wider mb-3">AI Executive Summary</div>
-                 <p className="text-slate-300 text-lg leading-relaxed">{sentiment.analysis}</p>
-               </div>
-             )}
-          </div>
-        )}
-
-        {activeTab === 'lostfound' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl">
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-slate-400">GenAI continuously cross-references fan-reported Lost Items against staff-reported Found Items.</p>
-              <button onClick={runAIMatcher} disabled={isMatching} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50">
-                {isMatching ? 'Running AI Matcher...' : 'Run Manual AI Match'} <Search size={18} />
-              </button>
-            </div>
-
-            {matches.length > 0 && (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-6 mb-8">
-                <h3 className="text-xl font-bold text-emerald-400 mb-4 flex items-center gap-2"><CheckCircle size={24}/> AI Found Potential Matches!</h3>
-                <div className="space-y-4">
-                  {matches.map((m, i) => (
-                    <div key={i} className="bg-slate-900 border border-emerald-500/20 p-4 rounded-xl flex gap-4 items-center">
-                      <div className="w-16 h-16 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center flex-col shadow-inner">
-                        <span className="text-xs text-slate-500 uppercase font-bold tracking-widest">Match</span>
-                        <span className="text-emerald-400 font-black text-xl">{m.confidence}%</span>
-                      </div>
-                      <div className="flex-1">
-                         <div className="flex gap-8 mb-2">
-                           <div>
-                             <span className="text-xs text-slate-500 uppercase font-bold tracking-widest block mb-1">Lost Item</span>
-                             <span className="text-slate-200">{lostItems.find(l => l.id === m.lostId)?.description || m.lostId}</span>
-                           </div>
-                           <div>
-                             <span className="text-xs text-slate-500 uppercase font-bold tracking-widest block mb-1">Found Item</span>
-                             <span className="text-slate-200">{foundItems.find(f => f.id === m.foundId)?.description || m.foundId}</span>
-                           </div>
-                         </div>
-                         <p className="text-emerald-400/80 text-sm italic">" {m.reason} "</p>
-                      </div>
-                      <button className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-4 py-2 rounded-lg font-bold transition-colors">
-                        Verify & Contact Fan
-                      </button>
-                    </div>
-                  ))}
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div className="text-slate-400 mb-2"><Search size={20} /></div>
+                    <div className="font-bold text-sm mb-1 text-white">Merch Store 3</div>
+                    <div className="text-2xl font-black text-amber-400">12 min</div>
+                  </div>
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div className="text-slate-400 mb-2"><MapPin size={20} /></div>
+                    <div className="font-bold text-sm mb-1 text-white">Gate C Restrooms</div>
+                    <div className="text-2xl font-black text-emerald-400">2 min</div>
+                  </div>
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div className="text-slate-400 mb-2"><MapPin size={20} /></div>
+                    <div className="font-bold text-sm mb-1 text-white">Main Entrance</div>
+                    <div className="text-2xl font-black text-red-400">28 min</div>
+                  </div>
                 </div>
               </div>
-            )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-                <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2"><ShieldAlert className="text-red-400" size={20}/> Reported Lost by Fans</h3>
-                {lostItems.length === 0 ? <p className="text-slate-500 italic">No lost items reported.</p> : (
-                  <ul className="space-y-3">
-                    {lostItems.map(item => (
-                      <li key={item.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <div className="font-bold text-slate-300">{item.description}</div>
-                        <div className="text-sm text-slate-500 mt-1 flex items-center gap-1"><MapPin size={12}/> {item.location || 'Unknown location'}</div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-                <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2"><CheckCircle className="text-emerald-400" size={20}/> Logged as Found by Staff</h3>
-                {foundItems.length === 0 ? <p className="text-slate-500 italic">No found items logged.</p> : (
-                  <ul className="space-y-3">
-                    {foundItems.map(item => (
-                      <li key={item.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <div className="font-bold text-slate-300">{item.description}</div>
-                        <div className="text-sm text-slate-500 mt-1 flex items-center gap-1"><MapPin size={12}/> {item.location || 'Unknown location'}</div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
             </div>
+          )}
+          
+        </main>
 
-          </div>
-        )}
+        {/* Bottom Navigation */}
+        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-6 py-4 pb-8 flex justify-between items-center z-20">
+          <button 
+            onClick={() => setActiveTab('home')}
+            className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-emerald-500/10' : ''}`}>
+              <Home size={22} className={activeTab === 'home' ? 'fill-emerald-400/20' : ''} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider">Home</span>
+          </button>
 
+          <button 
+            onClick={() => setActiveTab('assistant')}
+            className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'assistant' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            <div className={`p-2 rounded-xl transition-all ${activeTab === 'assistant' ? 'bg-emerald-500/10' : ''}`}>
+              <MessageCircle size={22} className={activeTab === 'assistant' ? 'fill-emerald-400/20' : ''} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider">Assistant</span>
+          </button>
 
+          <button 
+            onClick={() => setActiveTab('explore')}
+            className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'explore' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            <div className={`p-2 rounded-xl transition-all ${activeTab === 'explore' ? 'bg-emerald-500/10' : ''}`}>
+              <Map size={22} className={activeTab === 'explore' ? 'fill-emerald-400/20' : ''} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider">Explore</span>
+          </button>
+        </nav>
 
-      </main>
+      </div>
     </div>
   );
 }
