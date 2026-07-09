@@ -16,7 +16,6 @@ export default function FanApp() {
   const [selectedStadium, setSelectedStadium] = useState('MetLife Stadium');
   const [actionModal, setActionModal] = useState<string | null>(null);
   const [actionStatus, setActionStatus] = useState<'idle' | 'processing' | 'success'>('idle');
-  const [actionStatus, setActionStatus] = useState<'idle' | 'processing' | 'success'>('idle');
   const [incidentLocation, setIncidentLocation] = useState('Seat (Sec 112)');
   const [lostLocation, setLostLocation] = useState('Seat (Sec 112)');
   const [isListening, setIsListening] = useState(false);
