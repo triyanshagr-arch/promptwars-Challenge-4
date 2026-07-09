@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket, AlertTriangle, PackageSearch } from 'lucide-react';
+import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket, AlertTriangle, PackageSearch, ShieldAlert } from 'lucide-react';
 
 export default function FanApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -15,6 +15,7 @@ export default function FanApp() {
   const [showARMap, setShowARMap] = useState(false);
   const [selectedStadium, setSelectedStadium] = useState('MetLife Stadium');
   const [actionModal, setActionModal] = useState<string | null>(null);
+  const [actionStatus, setActionStatus] = useState<'idle' | 'processing' | 'success'>('idle');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Dynamic wait times based on selected stadium
@@ -387,7 +388,7 @@ export default function FanApp() {
                 <h3 className="font-bold text-lg mb-4 mt-8">Stadium Services</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div 
-                    onClick={() => setActionModal('incident')}
+                    onClick={() => { setActionModal('incident'); setActionStatus('idle'); }}
                     className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm cursor-pointer hover:border-red-500/50 transition-colors group"
                   >
                     <div className="w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -398,7 +399,7 @@ export default function FanApp() {
                   </div>
                   
                   <div 
-                    onClick={() => setActionModal('lost')}
+                    onClick={() => { setActionModal('lost'); setActionStatus('idle'); }}
                     className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm cursor-pointer hover:border-amber-500/50 transition-colors group"
                   >
                     <div className="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -646,8 +647,69 @@ export default function FanApp() {
           <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-200">
              <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-sm">
                 
-                {actionModal === 'incident' && (
-                  <>
+                {actionStatus === 'processing' && (
+                  <div className="py-12 flex flex-col items-center justify-center animate-in fade-in">
+                     <div className="w-12 h-12 border-4 border-slate-800 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
+                     <p className="text-slate-400 font-mono text-sm animate-pulse">Transmitting to Command Center...</p>
+                  </div>
+                )}
+
+                {actionStatus === 'success' && actionModal === 'incident' && (
+                  <div className="animate-in zoom-in-95 duration-300">
+                     <div className="bg-slate-950 rounded-2xl border border-slate-800 p-4 mb-6">
+                        <div className="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                           <div className="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center">
+                              <ShieldAlert size={16} />
+                           </div>
+                           <div>
+                              <div className="font-bold text-white text-sm">Security Operations</div>
+                              <div className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> LIVE AGENT CONNECTED
+                              </div>
+                           </div>
+                        </div>
+                        <p className="text-sm text-slate-300 leading-relaxed italic">
+                          "Report received. We have identified your location via the stadium mesh network. A security unit has been dispatched and will arrive in approximately 90 seconds. Please move to a safe distance if necessary."
+                        </p>
+                     </div>
+                     <button 
+                        onClick={() => setActionModal(null)}
+                        className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors"
+                      >
+                        Close Channel
+                      </button>
+                  </div>
+                )}
+
+                {actionStatus === 'success' && actionModal === 'lost' && (
+                  <div className="animate-in zoom-in-95 duration-300">
+                     <div className="bg-slate-950 rounded-2xl border border-slate-800 p-4 mb-6">
+                        <div className="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                           <div className="w-8 h-8 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center">
+                              <User size={16} />
+                           </div>
+                           <div>
+                              <div className="font-bold text-white text-sm">Guest Services AI</div>
+                              <div className="text-[10px] text-blue-400 font-mono flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span> AUTOMATED SYSTEM
+                              </div>
+                           </div>
+                        </div>
+                        <p className="text-sm text-slate-300 leading-relaxed italic">
+                          "Your item has been logged in our database. We are currently scanning our lost and found inventory and will send a push notification immediately if a match is found at any of the guest service desks."
+                        </p>
+                     </div>
+                     <button 
+                        onClick={() => setActionModal(null)}
+                        className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors"
+                      >
+                        Close System
+                      </button>
+                  </div>
+                )}
+
+                {actionStatus === 'idle' && actionModal === 'incident' && (
+                  <div className="animate-in fade-in duration-200">
                     <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4 mx-auto">
                       <AlertTriangle size={24} />
                     </div>
@@ -661,18 +723,24 @@ export default function FanApp() {
                     
                     <button 
                       onClick={() => {
-                        alert("Incident reported successfully. Security is en route.");
-                        setActionModal(null);
+                        setActionStatus('processing');
+                        setTimeout(() => setActionStatus('success'), 1500);
                       }}
                       className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors mb-3"
                     >
                       Submit Report
                     </button>
-                  </>
+                    <button 
+                      onClick={() => setActionModal(null)}
+                      className="w-full text-slate-400 hover:text-white font-bold py-2 text-sm transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 )}
 
-                {actionModal === 'lost' && (
-                  <>
+                {actionStatus === 'idle' && actionModal === 'lost' && (
+                  <div className="animate-in fade-in duration-200">
                     <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mb-4 mx-auto">
                       <PackageSearch size={24} />
                     </div>
@@ -687,8 +755,8 @@ export default function FanApp() {
                     
                     <button 
                       onClick={() => {
-                        alert("Item logged. We will notify you if it is turned in.");
-                        setActionModal(null);
+                        setActionStatus('processing');
+                        setTimeout(() => setActionStatus('success'), 1500);
                       }}
                       className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-colors mb-3"
                     >
@@ -696,22 +764,21 @@ export default function FanApp() {
                     </button>
                     <button 
                       onClick={() => {
-                        alert("Thank you! Please bring the item to the nearest information desk.");
-                        setActionModal(null);
+                        setActionStatus('processing');
+                        setTimeout(() => setActionStatus('success'), 1500);
                       }}
                       className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors mb-3"
                     >
                       I Found an Item
                     </button>
-                  </>
+                    <button 
+                      onClick={() => setActionModal(null)}
+                      className="w-full text-slate-400 hover:text-white font-bold py-2 text-sm transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 )}
-
-                <button 
-                  onClick={() => setActionModal(null)}
-                  className="w-full text-slate-400 hover:text-white font-bold py-2 text-sm transition-colors"
-                >
-                  Cancel
-                </button>
              </div>
           </div>
         )}
