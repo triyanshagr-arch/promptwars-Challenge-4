@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy } from 'lucide-react';
+import { Home, MessageCircle, Map, Clock, ArrowRight, User, Search, MapPin, Coffee, Send, ChevronRight, Trophy, Calendar, CalendarDays, Ticket } from 'lucide-react';
 
 export default function FanApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -374,48 +374,124 @@ export default function FanApp() {
             <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
                 <Trophy className="text-emerald-400" size={20} />
-                Host Stadiums
+                Host Stadiums & Maps
               </h2>
-              <p className="text-sm text-slate-400 mb-6">Explore the 16 iconic venues hosting the 2026 FIFA World Cup across North America.</p>
+              <p className="text-sm text-slate-400 mb-6">Explore the 16 iconic venues, match allocations, and seating plans.</p>
               
               <div className="space-y-4">
                 {[
-                  { city: 'New York/New Jersey', name: 'MetLife Stadium', capacity: '82,500', region: 'East' },
-                  { city: 'Dallas', name: 'AT&T Stadium', capacity: '80,000', region: 'Central' },
-                  { city: 'Mexico City', name: 'Estadio Azteca', capacity: '83,000', region: 'Mexico' },
-                  { city: 'Kansas City', name: 'Arrowhead Stadium', capacity: '76,000', region: 'Central' },
-                  { city: "New York/New Jersey", name: "MetLife Stadium", capacity: "82,500", region: "East" },
-                  { city: "Dallas", name: "AT&T Stadium", capacity: "80,000", region: "Central" },
-                  { city: "Mexico City", name: "Estadio Azteca", capacity: "83,000", region: "Mexico" },
-                  { city: "Kansas City", name: "Arrowhead Stadium", capacity: "76,000", region: "Central" },
-                  { city: "Houston", name: "NRG Stadium", capacity: "72,000", region: "Central" },
-                  { city: "Atlanta", name: "Mercedes-Benz Stadium", capacity: "71,000", region: "East" },
-                  { city: "Los Angeles", name: "SoFi Stadium", capacity: "70,000", region: "West" },
-                  { city: "Philadelphia", name: "Lincoln Financial Field", capacity: "69,000", region: "East" },
-                  { city: "Seattle", name: "Lumen Field", capacity: "69,000", region: "West" },
-                  { city: "San Francisco", name: "Levi's Stadium", capacity: "68,500", region: "West" },
-                  { city: "Miami", name: "Hard Rock Stadium", capacity: "65,000", region: "East" },
-                  { city: "Boston", name: "Gillette Stadium", capacity: "65,000", region: "East" },
-                  { city: "Vancouver", name: "BC Place", capacity: "54,500", region: "Canada" },
-                  { city: "Monterrey", name: "Estadio BBVA", capacity: "53,500", region: "Mexico" },
-                  { city: "Guadalajara", name: "Estadio Akron", capacity: "48,000", region: "Mexico" },
-                  { city: "Toronto", name: "BMO Field", capacity: "45,000", region: "Canada" },
+                  { city: "New York/NJ", name: "MetLife Stadium", capacity: "82,500", matches: "8 Matches (Final)", region: "East" },
+                  { city: "Dallas", name: "AT&T Stadium", capacity: "80,000", matches: "9 Matches", region: "Central" },
+                  { city: "Mexico City", name: "Estadio Azteca", capacity: "83,000", matches: "5 Matches (Opening)", region: "Mexico" },
+                  { city: "Atlanta", name: "Mercedes-Benz Stadium", capacity: "71,000", matches: "8 Matches", region: "East" },
+                  { city: "Los Angeles", name: "SoFi Stadium", capacity: "70,000", matches: "8 Matches", region: "West" },
+                  { city: "Miami", name: "Hard Rock Stadium", capacity: "65,000", matches: "7 Matches", region: "East" },
+                  { city: "Houston", name: "NRG Stadium", capacity: "72,000", matches: "7 Matches", region: "Central" },
+                  { city: "Vancouver", name: "BC Place", capacity: "54,500", matches: "7 Matches", region: "Canada" },
+                  { city: "Boston", name: "Gillette Stadium", capacity: "65,000", matches: "7 Matches", region: "East" },
+                  { city: "Kansas City", name: "Arrowhead Stadium", capacity: "76,000", matches: "6 Matches", region: "Central" },
+                  { city: "Philadelphia", name: "Lincoln Financial Field", capacity: "69,000", matches: "6 Matches", region: "East" },
+                  { city: "Seattle", name: "Lumen Field", capacity: "69,000", matches: "6 Matches", region: "West" },
+                  { city: "San Francisco", name: "Levi's Stadium", capacity: "68,500", matches: "6 Matches", region: "West" },
+                  { city: "Toronto", name: "BMO Field", capacity: "45,000", matches: "6 Matches", region: "Canada" },
+                  { city: "Monterrey", name: "Estadio BBVA", capacity: "53,500", matches: "4 Matches", region: "Mexico" },
+                  { city: "Guadalajara", name: "Estadio Akron", capacity: "48,000", matches: "4 Matches", region: "Mexico" },
                 ].map((stadium, i) => (
-                  <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm group hover:border-emerald-500/50 transition-colors">
-                    <div>
-                      <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">{stadium.city}</div>
-                      <div className="font-bold text-white text-lg">{stadium.name}</div>
-                      <div className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                        <span>Capacity: {stadium.capacity}</span>
+                  <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm group">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">{stadium.city}</div>
+                        <div className="font-bold text-white text-lg">{stadium.name}</div>
+                      </div>
+                      <div className="bg-slate-800 px-3 py-1 rounded-full text-xs font-bold text-emerald-400 whitespace-nowrap">
+                        {stadium.matches}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center mt-4">
+                      <div className="text-xs text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span><User size={12} className="inline mr-1"/>{stadium.capacity}</span>
                         <span className="w-1 h-1 rounded-full bg-slate-700"></span>
                         <span>{stadium.region}</span>
                       </div>
-                    </div>
-                    <div className="text-slate-600 group-hover:text-emerald-400 transition-colors">
-                      <ChevronRight size={20} />
+                      <button className="flex items-center gap-1 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors">
+                        <MapPin size={12} /> Seating Plan
+                      </button>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ---- MATCHES TAB ---- */}
+          {activeTab === 'matches' && (
+            <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <CalendarDays className="text-emerald-400" size={20} />
+                Tournament Match Plan
+              </h2>
+              <p className="text-sm text-slate-400 mb-6">Key dates and fixtures for the biggest World Cup in history (104 matches).</p>
+
+              <div className="space-y-6">
+                {/* Milestone 1 */}
+                <div className="relative pl-6 border-l-2 border-slate-800">
+                  <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-1 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                  <div className="text-emerald-400 font-bold text-sm mb-1">June 11, 2026</div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mt-2 shadow-lg">
+                    <h4 className="font-bold text-white">Opening Match</h4>
+                    <p className="text-xs text-slate-400 mt-1">Mexico plays the inaugural match of the tournament.</p>
+                    <div className="flex items-center gap-2 mt-3 text-xs text-slate-300 font-medium bg-slate-950 px-3 py-2 rounded-lg w-fit border border-slate-800">
+                      <MapPin size={14} className="text-emerald-400" /> Estadio Azteca, Mexico City
+                    </div>
+                  </div>
+                </div>
+
+                {/* Milestone 2 */}
+                <div className="relative pl-6 border-l-2 border-slate-800">
+                  <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-1"></div>
+                  <div className="text-emerald-400 font-bold text-sm mb-1">June 12, 2026</div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mt-2">
+                    <h4 className="font-bold text-white">USA & Canada Openers</h4>
+                    <p className="text-xs text-slate-400 mt-1">USMNT opens in LA. Canada opens in Toronto.</p>
+                    <div className="flex flex-col gap-2 mt-3 text-xs text-slate-300 font-medium">
+                      <div className="flex items-center gap-2 bg-slate-950 px-3 py-2 rounded-lg border border-slate-800"><MapPin size={14} className="text-emerald-400" /> SoFi Stadium, LA</div>
+                      <div className="flex items-center gap-2 bg-slate-950 px-3 py-2 rounded-lg border border-slate-800"><MapPin size={14} className="text-emerald-400" /> BMO Field, Toronto</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Milestone 3 */}
+                <div className="relative pl-6 border-l-2 border-slate-800">
+                  <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-1"></div>
+                  <div className="text-emerald-400 font-bold text-sm mb-1">June 11 - 27, 2026</div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mt-2">
+                    <h4 className="font-bold text-white">Group Stage (72 Matches)</h4>
+                    <p className="text-xs text-slate-400 mt-1">12 groups of 4 teams. Top 2 and 8 best 3rd-place advance.</p>
+                  </div>
+                </div>
+
+                {/* Milestone 4 */}
+                <div className="relative pl-6 border-l-2 border-slate-800">
+                  <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-1"></div>
+                  <div className="text-emerald-400 font-bold text-sm mb-1">June 28 - July 18, 2026</div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mt-2">
+                    <h4 className="font-bold text-white">Knockout Rounds</h4>
+                    <p className="text-xs text-slate-400 mt-1">Round of 32, Round of 16, Quarter-finals, and Semi-finals.</p>
+                  </div>
+                </div>
+
+                {/* Milestone 5 */}
+                <div className="relative pl-6 border-l-2 border-transparent">
+                  <div className="absolute w-4 h-4 bg-amber-500 rounded-full -left-[8px] top-1 shadow-[0_0_15px_rgba(245,158,11,0.6)]"></div>
+                  <div className="text-amber-400 font-bold text-sm mb-1">July 19, 2026</div>
+                  <div className="bg-gradient-to-br from-slate-900 to-amber-950/20 border border-amber-900/50 rounded-xl p-4 mt-2 shadow-lg">
+                    <h4 className="font-bold text-white">The Final</h4>
+                    <p className="text-xs text-slate-400 mt-1">The culmination of the 2026 World Cup.</p>
+                    <div className="flex items-center gap-2 mt-3 text-xs text-slate-300 font-medium bg-slate-950/50 px-3 py-2 rounded-lg w-fit border border-amber-900/30">
+                      <Trophy size={14} className="text-amber-400" /> MetLife Stadium, New York/NJ
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -423,45 +499,55 @@ export default function FanApp() {
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-4 py-4 pb-8 flex justify-between items-center z-20">
+        <nav className="absolute bottom-0 w-full bg-slate-950/80 backdrop-blur-xl border-t border-slate-900/80 px-2 py-4 pb-8 flex justify-between items-center z-20">
           <button 
             onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'home' ? 'bg-emerald-500/10' : ''}`}>
-              <Home size={22} className={activeTab === 'home' ? 'fill-emerald-400/20' : ''} />
+              <Home size={20} className={activeTab === 'home' ? 'fill-emerald-400/20' : ''} />
             </div>
-            <span className="text-[10px] font-bold tracking-wider">Home</span>
+            <span className="text-[9px] font-bold tracking-wider">Home</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('matches')}
+            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'matches' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            <div className={`p-2 rounded-xl transition-all ${activeTab === 'matches' ? 'bg-emerald-500/10' : ''}`}>
+              <CalendarDays size={20} className={activeTab === 'matches' ? 'fill-emerald-400/20' : ''} />
+            </div>
+            <span className="text-[9px] font-bold tracking-wider">Matches</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('stadiums')}
-            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'stadiums' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'stadiums' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'stadiums' ? 'bg-emerald-500/10' : ''}`}>
-              <Trophy size={22} className={activeTab === 'stadiums' ? 'fill-emerald-400/20' : ''} />
+              <MapPin size={20} className={activeTab === 'stadiums' ? 'fill-emerald-400/20' : ''} />
             </div>
-            <span className="text-[10px] font-bold tracking-wider">Stadiums</span>
+            <span className="text-[9px] font-bold tracking-wider">Stadiums</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('assistant')}
-            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'assistant' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'assistant' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'assistant' ? 'bg-emerald-500/10' : ''}`}>
-              <MessageCircle size={22} className={activeTab === 'assistant' ? 'fill-emerald-400/20' : ''} />
+              <MessageCircle size={20} className={activeTab === 'assistant' ? 'fill-emerald-400/20' : ''} />
             </div>
-            <span className="text-[10px] font-bold tracking-wider">Assistant</span>
+            <span className="text-[9px] font-bold tracking-wider">Concierge</span>
           </button>
 
           <button 
             onClick={() => setActiveTab('explore')}
-            className={`flex flex-col items-center gap-1 w-14 transition-colors ${activeTab === 'explore' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex flex-col items-center gap-1 w-1/5 transition-colors ${activeTab === 'explore' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
           >
             <div className={`p-2 rounded-xl transition-all ${activeTab === 'explore' ? 'bg-emerald-500/10' : ''}`}>
-              <Map size={22} className={activeTab === 'explore' ? 'fill-emerald-400/20' : ''} />
+              <Map size={20} className={activeTab === 'explore' ? 'fill-emerald-400/20' : ''} />
             </div>
-            <span className="text-[10px] font-bold tracking-wider">Explore</span>
+            <span className="text-[9px] font-bold tracking-wider">Explore</span>
           </button>
         </nav>
 
