@@ -472,18 +472,21 @@ export default function FanApp() {
                     const inputText = translateInput;
                     setTranslateInput('');
                     
-                    setTimeout(() => {
-                      const lower = inputText.toLowerCase().trim();
-                      const dict: Record<string, Record<string, string>> = {
-                        'hi': { 'Español': 'hola', 'Français': 'salut', 'Português': 'oi', 'Deutsch': 'hallo', 'العربية': 'مرحبا', '日本語': 'こんにちは', '한국어': '안녕', '中文': '你好', 'हिन्दी': 'नमस्ते' },
-                        'hello': { 'Español': 'hola', 'Français': 'bonjour', 'Português': 'olá', 'Deutsch': 'hallo', 'العربية': 'مرحبا', '日本語': 'こんにちは', '한국어': '안녕하세요', '中文': '你好', 'हिन्दी': 'नमस्ते' },
-                        'beer': { 'Español': 'cerveza', 'Français': 'bière', 'Deutsch': 'bier', '日本語': 'ビール' },
-                        'where is the bathroom?': { 'Español': '¿dónde está el baño?', 'Français': 'où sont les toilettes?', 'Deutsch': 'wo ist die toilette?' }
+                    try {
+                      const langMap: Record<string, string> = {
+                        'English': 'en', 'Español': 'es', 'Français': 'fr',
+                        'Português': 'pt', 'Deutsch': 'de', 'العربية': 'ar',
+                        '日本語': 'ja', '한국어': 'ko', '中文': 'zh-CN', 'हिन्दी': 'hi'
                       };
-
+                      const src = langMap[sourceLang] || 'en';
+                      const tgt = langMap[targetLang] || 'es';
+                      
+                      const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${src}&tl=${tgt}&dt=t&q=${encodeURIComponent(inputText)}`);
+                      const data = await res.json();
                       let translatedText = `[${targetLang}] ${inputText}`;
-                      if (dict[lower] && dict[lower][targetLang]) {
-                        translatedText = dict[lower][targetLang];
+                      
+                      if (data && data[0]) {
+                        translatedText = data[0].map((item: any) => item[0]).join('');
                       }
 
                       setTranslationLog(prev => [...prev, { 
@@ -492,8 +495,16 @@ export default function FanApp() {
                         srcLang: sourceLang, 
                         tgtLang: targetLang 
                       }]);
+                    } catch (err) {
+                      setTranslationLog(prev => [...prev, { 
+                        source: inputText, 
+                        target: `[${targetLang}] ${inputText}`, 
+                        srcLang: sourceLang, 
+                        tgtLang: targetLang 
+                      }]);
+                    } finally {
                       setIsTranslating(false);
-                    }, 600);
+                    }
                   }}
                   className="flex gap-2 relative items-center"
                 >
@@ -513,17 +524,27 @@ export default function FanApp() {
                       setIsTranslating(true);
                       
                       const mocks = [
-                        { src: "Can I get two hot dogs and a large beer please?", translations: { 'Español': '¿Me da dos perritos calientes y una cerveza grande por favor?', 'Français': 'Je voudrais deux hot-dogs et une grande bière, s\'il vous plaît.', 'Deutsch': 'Kann ich bitte zwei Hot Dogs und ein großes Bier haben?' } },
-                        { src: "Where is the merchandise stand?", translations: { 'Español': '¿Dónde está el puesto de merchandising?', 'Français': 'Où est le stand de produits dérivés?', 'Deutsch': 'Wo ist der Merchandise-Stand?' } },
-                        { src: "What a spectacular goal that was!", translations: { 'Español': '¡Qué gol espectacular fue ese!', 'Français': 'Quel but spectaculaire!', 'Deutsch': 'Was für ein spektakuläres Tor!' } }
+                        "Can I get two hot dogs and a large beer please?",
+                        "Where is the merchandise stand?",
+                        "What a spectacular goal that was!"
                       ];
-                      const mockObj = mocks[translationLog.length % mocks.length];
-                      const inputText = mockObj.src;
+                      const inputText = mocks[translationLog.length % mocks.length];
 
-                      setTimeout(() => {
+                      try {
+                        const langMap: Record<string, string> = {
+                          'English': 'en', 'Español': 'es', 'Français': 'fr',
+                          'Português': 'pt', 'Deutsch': 'de', 'العربية': 'ar',
+                          '日本語': 'ja', '한국어': 'ko', '中文': 'zh-CN', 'हिन्दी': 'hi'
+                        };
+                        const src = 'en'; // mocks are in english
+                        const tgt = langMap[targetLang] || 'es';
+                        
+                        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${src}&tl=${tgt}&dt=t&q=${encodeURIComponent(inputText)}`);
+                        const data = await res.json();
                         let translatedText = `[${targetLang}] ${inputText}`;
-                        if (mockObj.translations[targetLang as keyof typeof mockObj.translations]) {
-                           translatedText = mockObj.translations[targetLang as keyof typeof mockObj.translations];
+                        
+                        if (data && data[0]) {
+                          translatedText = data[0].map((item: any) => item[0]).join('');
                         }
 
                         setTranslationLog(prev => [...prev, { 
@@ -532,8 +553,16 @@ export default function FanApp() {
                           srcLang: 'English', 
                           tgtLang: targetLang 
                         }]);
+                      } catch (err) {
+                        setTranslationLog(prev => [...prev, { 
+                          source: inputText, 
+                          target: `[${targetLang}] ${inputText}`, 
+                          srcLang: 'English', 
+                          tgtLang: targetLang 
+                        }]);
+                      } finally {
                         setIsTranslating(false);
-                      }, 1000);
+                      }
                     }}
                     onPointerLeave={() => setIsListening(false)}
                     className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 ${isListening ? 'bg-emerald-500 text-slate-950 animate-pulse' : 'bg-slate-800 text-emerald-400 hover:bg-slate-700'}`}
