@@ -199,57 +199,121 @@ export default function FanApp() {
           {/* ---- ASSISTANT TAB ---- */}
           {activeTab === 'assistant' && (
             <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-900/30">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <MessageCircle className="text-emerald-400" size={20} />
-                  Stadium AI
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">Ask about food, rules, or live stats!</p>
-              </div>
-              
-              <div className="flex-1 p-6 space-y-6 overflow-y-auto min-h-[400px]">
-                {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-md ${
-                      m.role === 'user' 
-                        ? 'bg-emerald-500 text-slate-950 rounded-tr-sm font-medium' 
-                        : 'bg-slate-800 text-slate-200 rounded-tl-sm border border-slate-700'
-                    }`}>
-                      {m.content}
+              {messages.length === 1 ? (
+                <div className="flex-1 p-6 overflow-y-auto">
+                  <h2 className="text-3xl font-black mb-2 mt-4 text-white">Ask the fan concierge</h2>
+                  <p className="text-sm text-slate-400 mb-8 leading-relaxed">
+                    Tickets, gates, food, accessibility, transport, sustainability and more — in your language.
+                  </p>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <label className="text-sm font-bold text-slate-200 block mb-2">Venue (optional)</label>
+                      <select className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors appearance-none text-slate-200">
+                        <option>Levi's Stadium — Santa Clara, CA</option>
+                        <option>MetLife Stadium — East Rutherford, NJ</option>
+                        <option>Estadio Azteca — Mexico City</option>
+                        <option>AT&T Stadium — Arlington, TX</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-bold text-slate-200 block mb-2">Your question</label>
+                      <div className="relative">
+                        <textarea 
+                          value={input}
+                          onChange={e => setInput(e.target.value)}
+                          placeholder="How do I get here by public transit?"
+                          className="w-full h-32 bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors text-slate-200 resize-none shadow-inner"
+                        />
+                        <div className="absolute bottom-3 right-3 flex items-center justify-center gap-1 bg-white p-1 rounded-full px-2">
+                          <MessageCircle size={16} className="text-emerald-500 fill-emerald-500" />
+                          <span className="text-emerald-600 font-black text-xs italic tracking-tighter">G</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Where is the nearest step-free route?",
+                        "What food options are halal or vegan?",
+                        "How do I get here by public transit?",
+                        "Where can I recycle?"
+                      ].map((chip, i) => (
+                        <button 
+                          key={i}
+                          onClick={() => setInput(chip)}
+                          className="bg-slate-900/50 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium py-2 px-4 rounded-full transition-colors text-left"
+                        >
+                          {chip}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button 
+                      onClick={sendMessage}
+                      disabled={!input.trim() || isTyping}
+                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 px-8 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 mt-4 shadow-lg shadow-emerald-500/20"
+                    >
+                      Ask
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-900/30">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <MessageCircle className="text-emerald-400" size={20} />
+                      Fan Concierge
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-1">Live AI Assistant for your Match Day</p>
+                  </div>
+                  
+                  <div className="flex-1 p-6 space-y-6 overflow-y-auto min-h-[400px]">
+                    {messages.map((m, i) => (
+                      <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-md ${
+                          m.role === 'user' 
+                            ? 'bg-emerald-500 text-slate-950 rounded-tr-sm font-medium' 
+                            : 'bg-slate-800 text-slate-200 rounded-tl-sm border border-slate-700'
+                        }`}>
+                          {m.content}
+                        </div>
+                      </div>
+                    ))}
+                    {isTyping && (
+                      <div className="flex justify-start">
+                         <div className="bg-slate-800 text-slate-400 p-4 rounded-2xl rounded-tl-sm border border-slate-700 flex gap-2 items-center h-12">
+                           <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                           <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                           <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                         </div>
+                      </div>
+                    )}
+                    <div ref={chatEndRef} />
+                  </div>
+
+                  <div className="p-4 bg-slate-950 border-t border-slate-900">
+                    <div className="relative flex items-center">
+                      <input 
+                        type="text" 
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                        placeholder="Ask the concierge..."
+                        className="w-full bg-slate-900 border border-slate-800 rounded-full pl-6 pr-14 py-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"
+                      />
+                      <button 
+                        onClick={sendMessage}
+                        disabled={!input.trim() || isTyping}
+                        className="absolute right-2 p-3 bg-emerald-500 text-slate-950 rounded-full disabled:opacity-50 hover:bg-emerald-400 transition-colors"
+                      >
+                        <Send size={16} />
+                      </button>
                     </div>
                   </div>
-                ))}
-                {isTyping && (
-                  <div className="flex justify-start">
-                     <div className="bg-slate-800 text-slate-400 p-4 rounded-2xl rounded-tl-sm border border-slate-700 flex gap-2 items-center h-12">
-                       <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                       <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                       <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                     </div>
-                  </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
-
-              <div className="p-4 bg-slate-950 border-t border-slate-900">
-                <div className="relative flex items-center">
-                  <input 
-                    type="text" 
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                    placeholder="Where is the nearest vegan food?"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-full pl-6 pr-14 py-4 text-sm focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"
-                  />
-                  <button 
-                    onClick={sendMessage}
-                    disabled={!input.trim() || isTyping}
-                    className="absolute right-2 p-3 bg-emerald-500 text-slate-950 rounded-full disabled:opacity-50 hover:bg-emerald-400 transition-colors"
-                  >
-                    <Send size={16} />
-                  </button>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           )}
 
