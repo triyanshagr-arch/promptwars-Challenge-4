@@ -16,6 +16,8 @@ export default function FanApp() {
   const [selectedStadium, setSelectedStadium] = useState('MetLife Stadium');
   const [actionModal, setActionModal] = useState<string | null>(null);
   const [actionStatus, setActionStatus] = useState<'idle' | 'processing' | 'success'>('idle');
+  const [incidentLocation, setIncidentLocation] = useState('Seat (Sec 112)');
+  const [lostLocation, setLostLocation] = useState('Seat (Sec 112)');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Dynamic wait times based on selected stadium
@@ -669,7 +671,7 @@ export default function FanApp() {
                            </div>
                         </div>
                         <p className="text-sm text-slate-300 leading-relaxed italic">
-                          "Report received. We have identified your location via the stadium mesh network. A security unit has been dispatched and will arrive in approximately 90 seconds. Please move to a safe distance if necessary."
+                          "Report received. A security unit from the nearest sector has been dispatched to <strong>{incidentLocation}</strong> and will arrive in approximately 90 seconds. Please stand by."
                         </p>
                      </div>
                      <button 
@@ -696,7 +698,7 @@ export default function FanApp() {
                            </div>
                         </div>
                         <p className="text-sm text-slate-300 leading-relaxed italic">
-                          "Your item has been logged in our database. We are currently scanning our lost and found inventory and will send a push notification immediately if a match is found at any of the guest service desks."
+                          "Your item has been logged. Our Guest Services team stationed near <strong>{lostLocation}</strong> has been alerted and is currently scanning the area. We will notify you if a match is found."
                         </p>
                      </div>
                      <button 
@@ -714,8 +716,20 @@ export default function FanApp() {
                       <AlertTriangle size={24} />
                     </div>
                     <h3 className="font-black text-white text-center text-xl mb-2">Log an Incident</h3>
-                    <p className="text-xs text-slate-400 text-center mb-6">Security will be dispatched to your location ({selectedStadium}). This report is anonymous.</p>
+                    <p className="text-xs text-slate-400 text-center mb-6">Security will be dispatched to your selected location at {selectedStadium}. This report is anonymous.</p>
                     
+                    <select 
+                      value={incidentLocation}
+                      onChange={(e) => setIncidentLocation(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 transition-colors text-slate-200 mb-4 appearance-none"
+                    >
+                      <option value="Seat (Sec 112)">Your Seat (Sec 112)</option>
+                      <option value="Gate C Entrance">Gate C Entrance</option>
+                      <option value="Concourse B Food">Concourse B Food</option>
+                      <option value="Merch Store 3">Merch Store 3</option>
+                      <option value="Nearest Restrooms">Nearest Restrooms</option>
+                    </select>
+
                     <textarea 
                       placeholder="Describe the incident (e.g., Spill in Sec 112, rowdy fan)..."
                       className="w-full h-24 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition-colors text-slate-200 resize-none mb-4"
@@ -747,6 +761,18 @@ export default function FanApp() {
                     <h3 className="font-black text-white text-center text-xl mb-2">Lost & Found</h3>
                     <p className="text-xs text-slate-400 text-center mb-6">Connect with the {selectedStadium} lost & found department.</p>
                     
+                    <select 
+                      value={lostLocation}
+                      onChange={(e) => setLostLocation(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition-colors text-slate-200 mb-4 appearance-none"
+                    >
+                      <option value="Seat (Sec 112)">Lost/Found at Seat (Sec 112)</option>
+                      <option value="Gate C Entrance">Lost/Found at Gate C</option>
+                      <option value="Concourse B Food">Lost/Found at Concourse B</option>
+                      <option value="Merch Store 3">Lost/Found at Merch Store 3</option>
+                      <option value="Nearest Restrooms">Lost/Found in Restrooms</option>
+                    </select>
+
                     <input 
                       type="text"
                       placeholder="What did you lose? (e.g., Blue cap)"
